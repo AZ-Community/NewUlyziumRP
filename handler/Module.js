@@ -17,8 +17,7 @@ module.exports = client => {
 
             fs.readdir(`./commands/${category}`, (err, files) => {
                 if(err) console.error(err);
-                let commands = new Array();
-
+                console.log(`-----------------------------------------------------------\nMODULE NAME: ${category.toUpperCase()}`);
                 files.forEach(file => {
                     if(!file.endsWith('.js')) return;
                     let content = require(`../commands/${category}/${file}`);
@@ -31,7 +30,9 @@ module.exports = client => {
                     });
 
                     client.helps.get(category).cmds.push(content.help.name);
+                    console.log(`-> ${cmdName.toUpperCase()} - Command initialised.`);
                 });
+                console.log(`-----------------------------------------------------------`);
             });
         });
     });
