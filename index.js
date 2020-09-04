@@ -8,13 +8,18 @@ const { config } = require('dotenv');
  * -> Initialisation
  */
 const client = new Client({disableEveryone:true});
+
 config({path:__dirname+'/.env'});
+
+client.prefix = process.env.PREFIX;
+
+client.con = require("./db_config.js");
 
 /**
  * -> Events test
  */
 client.on('ready', () => {
-    console.log('ONLINE');
+    console.log('[ADVERT] Bot is online !');
 });
 
 /**

@@ -20,6 +20,7 @@
   "homepage": "https://github.com/AZ-Community/NewUlyziumRP#readme",
   "dependencies": {
     "discord.js": "^12.3.1",
-    "dotenv": "^8.2.0"
+    "dotenv": "^8.2.0",
+    "mysql": "^2.18.1"
   }
 }
