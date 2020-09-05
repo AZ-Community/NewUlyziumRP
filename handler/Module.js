@@ -5,6 +5,7 @@ module.exports = client => {
     client.commands = new Discord.Collection();
     client.aliases = new Discord.Collection();
     client.helps = new Discord.Collection();
+    client.cooldowns = new Discord.Collection();
 
     fs.readdir('./commands/', (err, categories) => {
         if(err) console.error(err);

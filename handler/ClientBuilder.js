@@ -6,5 +6,6 @@ module.exports = class UlyziumBot extends Client {
         this.commands = new Collection();
         this.aliases = new Collection();
         this.config = require('../config.json');
+        this.cooldowns = new Collection();
     }
 }
