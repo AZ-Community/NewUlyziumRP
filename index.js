@@ -15,6 +15,7 @@ config({path:__dirname+'/.env'});
 require('./handler/Database.js')(client);
 require('./handler/Module.js')(client);
 require('./handler/Event.js')(client);
+require('./handler/Leveling.js')(client);
 
 /**
  * Events Initialisation

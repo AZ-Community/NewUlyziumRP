@@ -20,7 +20,11 @@ module.exports = client => {
      * Database Initialisation 
      * -> Query to create all tables needed to run bot
     */
-    con.query(`CREATE TABLE IF NOT EXISTS player( id VARCHAR(25) PRIMARY KEY, level INT, xp INT, xpmax INT );`, err => { if(err) throw err; });
+    con.query(`
+        CREATE TABLE IF NOT EXISTS player( id VARCHAR(25) PRIMARY KEY, level INT DEFAULT 1, xp INT DEFAULT 0, xpmax INT DEFAULT 200 );
+        CREATE TABLE IF NOT EXISTS channelXPBan( idServer VARCHAR(30), idChannel VARCHAR(30), PRIMARY KEY(idServer, idChannel) );
+        `, err => { if(err) throw err; }
+    );
 
     // Keep connection function because of DB force timeout
     setInterval(function () {
@@ -28,4 +32,6 @@ module.exports = client => {
     }, 57000);
 
     client.con = con;
+
+    // Functions which allow you to interact with database tables
 }
