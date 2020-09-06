@@ -7,5 +7,9 @@ module.exports = class UlyziumBot extends Client {
         this.aliases = new Collection();
         this.config = require('../config.json');
         this.cooldowns = new Collection();
+
+        this.userIsStaff = (guild, author) => {
+            return guild.member(author).hasPermission('KICK_MEMBERS');
+        }
     }
 }
