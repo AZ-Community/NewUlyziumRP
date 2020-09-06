@@ -1,4 +1,5 @@
 {
     "prefix": "=",
-    "cooldownXP": 5
+    "cooldownXP": 5,
+    "minXPPerMsg": 5
 }
