@@ -12,6 +12,9 @@ const client = new UlyziumBot({disableEveryone:true});
 
 config({path:__dirname+'/.env'});
 
+/**
+ * -> Handlers Initialisation
+ */
 require('./handler/Database.js')(client);
 require('./handler/Module.js')(client);
 require('./handler/Event.js')(client);
