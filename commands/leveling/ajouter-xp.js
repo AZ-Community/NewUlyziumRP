@@ -20,7 +20,7 @@ exports.run = async (client, message, args) => {
 exports.help = {
     name: "ajouter-xp",
     description: "Permet au staff de donner une valeur spécifique d'XP à un joueur.",
-    usage: "=ajouter-xp [tag joueur] [valeur]",
+    usage: "=ajouter-xp <tag joueur> <montant>",
     example: "=ajouter-xp @Ben'#7874 400"
 }
 
