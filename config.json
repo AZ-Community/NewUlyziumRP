@@ -1,5 +1,6 @@
 {
     "prefix": "=",
     "cooldownXP": 5,
-    "minXPPerMsg": 5
+    "minXPPerMsg": 5,
+    "gainXPEveryCharacters": 200
 }
