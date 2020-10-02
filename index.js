@@ -19,6 +19,7 @@ require('./handler/Database.js')(client);
 require('./handler/Module.js')(client);
 require('./handler/Event.js')(client);
 require('./handler/Leveling.js')(client);
+require('./handler/Inventory.js')(client);
 
 /**
  * Events Initialisation
@@ -29,4 +30,4 @@ client.on('error', console.error);
 /**
  * -> Log bot
  */
-client.login(process.env.TOKEN).catch(console.error);
+client.login("NTQ2Mjc0NTIwMjA2NjcxODcz.XGfjyg.mZEKsG-cMqJ3XQT1oFKYCpCQ00o").catch(console.error);
