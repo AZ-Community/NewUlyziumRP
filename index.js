@@ -19,6 +19,7 @@ require('./handler/Database.js')(client);
 require('./handler/Module.js')(client);
 require('./handler/Event.js')(client);
 require('./handler/Leveling.js')(client);
+require('./handler/Inventory.js')(client);
 
 /**
  * Events Initialisation
