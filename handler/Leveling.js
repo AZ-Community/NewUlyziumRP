@@ -87,8 +87,6 @@ module.exports = client => {
                         xpToAdd = playerMaxXP;
                     }else xpToAdd = playerXP+xp;
 
-                    console.log(xpToAdd);
-
                     if(!xpToAdd) resolve(false);
 
                     client.con.query(`UPDATE player SET xp = ${xpToAdd} WHERE id = '${id}';`, err => {
@@ -98,5 +96,48 @@ module.exports = client => {
                 }
             });
         });
+    }
+
+    client.playerRemoveXP = (id, xp) => {
+        return new Promise((resolve, reject) => {
+            client.con.query(`SELECT * FROM player WHERE id = '${id}';`, (err, rows) => {
+                if(err) reject(err);
+
+                if(rows.length < 1) {
+                    resolve(false);
+                }else{
+                    let playerXP = parseInt(rows[0].xp);
+                    let xpAfterRemove = playerXP - xp;
+
+                    if(xpAfterRemove >= 0) {
+                        client.con.query(`UPDATE player SET xp = ${xpAfterRemove} WHERE id = '${id}';`, err => {
+                            if(err) reject(err);
+                            resolve(true);
+                        });
+                    }else{
+                        let level = parseInt(rows[0].level);
+                        let xpMax = client.xpMaxFromLevel(level);
+                        let xpToRemove = xp;
+                        
+                        while(xpToRemove > xpMax){
+                            xpToRemove = xpToRemove - xpMax;
+                            xpMax = client.xpMaxFromLevel(level--);
+                        }
+
+                        xpAfterRemove = xpMax - xpToRemove;
+
+                        client.con.query(`UPDATE player SET xp = ${xpAfterRemove}, level = ${level} WHERE id = '${id}';`, err => {
+                            if(err) reject(err);
+                            resolve(true);
+                        });
+                    }
+                }
+            });
+        });
+    }
+
+    client.xpMaxFromLevel = level => {
+        let minXP = 200;
+        return ( level^2 )*minXP*0.5 + level*minXP + minXP;
     }
 }
