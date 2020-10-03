@@ -30,4 +30,4 @@ client.on('error', console.error);
 /**
  * -> Log bot
  */
- client.login(process.env.TOKEN).catch(console.error);
+client.login(process.env.TOKEN).catch(console.error);
