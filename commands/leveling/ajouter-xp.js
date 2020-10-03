@@ -13,8 +13,8 @@ exports.run = async (client, message, args) => {
     
     if(!isFinite(args[1]) || args[1] <= 0) return message.channel.send({embed: {color: "RED", description: `:x: <@${message.author.id}>, le montant d'xp renseigné est incorrect!`}});
 
-    client.playerAddXP(member.id, parseInt(args[1]), true);
-    return message.channel.send({embed: {color: "GREEN", description: `:white_check_mark: <@${message.author.id}> a donné ${args[1]} :sparkles: à <@${member.id}>.\nFélicitations !`}});
+    if(await client.playerAddXP(member.id, parseInt(args[1]), true)) return message.channel.send({embed: {color: "GREEN", description: `:white_check_mark: <@${message.author.id}> a donné ${args[1]} :sparkles: à <@${member.id}>.\nFélicitations !`}});
+    else return message.channel.send({embed: {color: "RED", description: `:x: Une erreur est survenue, impossible d'ajouter de l'xp à ce joueur.`}});
 }
 
 exports.help = {
