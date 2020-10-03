@@ -30,4 +30,4 @@ client.on('error', console.error);
 /**
  * -> Log bot
  */
-client.login("NTQ2Mjc0NTIwMjA2NjcxODcz.XGfjyg.mZEKsG-cMqJ3XQT1oFKYCpCQ00o").catch(console.error);
+ client.login(process.env.TOKEN).catch(console.error);
