@@ -25,5 +25,5 @@ exports.help = {
 }
 
 exports.conf = {
-    aliases: ["lvlup", "up"]
+    aliases: ["lvlup", "up", "+lvl"]
 }
