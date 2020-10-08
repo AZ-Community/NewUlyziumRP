@@ -158,4 +158,24 @@ module.exports = client => {
             });
         });
     }
+
+    client.playerLevelDown = (id, lvlToRm) => {
+        return new Promise((resolve, reject) => {
+            client.con.query(`SELECT * FROM player WHERE id = '${id}';`, (err, rows) => {
+                if(err) reject(err);
+                
+                if(rows.length < 1){
+                    resolve(false);
+                }else{
+                    let lvlToSet = parseInt(rows[0].level) - lvlToRm;
+                    if(lvlToSet < 1) lvlToSet = 1;
+                    
+                    client.con.query(`UPDATE player SET level = ${lvlToSet} WHERE id = '${id}';`, err => {
+                        if(err) reject(err);
+                        resolve(true);
+                    })
+                }
+            });
+        });
+    }
 }
