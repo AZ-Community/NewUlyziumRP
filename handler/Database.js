@@ -22,7 +22,8 @@ module.exports = client => {
     */
     con.query(`
         CREATE TABLE IF NOT EXISTS player( id VARCHAR(25) PRIMARY KEY, level INT DEFAULT 1, xp INT DEFAULT 0, xpmax INT DEFAULT 200 );
-        CREATE TABLE IF NOT EXISTS channelXPBan( idServer VARCHAR(30), idChannel VARCHAR(30), PRIMARY KEY(idServer, idChannel) );
+		CREATE TABLE IF NOT EXISTS inventory( idplayer VARCHAR(25), itemid INT DEFAULT NULL, quantity INT DEFAULT 1);
+        CREATE TABLE IF NOT EXISTS channelXPBan( idServer VARCHAR(31), idChannel VARCHAR(30), PRIMARY KEY(idServer, idChannel) );
         `, err => { if(err) throw err; }
     );
 
