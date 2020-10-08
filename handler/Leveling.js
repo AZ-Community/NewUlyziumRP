@@ -115,13 +115,14 @@ module.exports = client => {
                             resolve(true);
                         });
                     }else{
-                        let level = parseInt(rows[0].level);
+                        let level = parseInt(rows[0].level) - 1;
                         let xpMax = client.xpMaxFromLevel(level);
-                        let xpToRemove = xp;
+                        let xpToRemove = xp - playerXP;
                         
                         while(xpToRemove > xpMax){
+                            level--;
                             xpToRemove = xpToRemove - xpMax;
-                            xpMax = client.xpMaxFromLevel(level--);
+                            xpMax = client.xpMaxFromLevel(level);
                         }
 
                         xpAfterRemove = xpMax - xpToRemove;
@@ -137,7 +138,7 @@ module.exports = client => {
     }
 
     client.xpMaxFromLevel = level => {
-        let minXP = 200;
-        return ( level^2 )*minXP*0.5 + level*minXP + minXP;
+        let minXP = Math.pow(level, 2)*200*0.5 + level*200 + 200;
+        return minXP;
     }
 }
