@@ -20,7 +20,7 @@ exports.run = async (client, message, args) => {
 exports.help = {
     name: "monter-lvl",
     description: "Permet au staff de monter le niveau d'un joueur.",
-    usage: "=monter-lvl [tag joueur] [valeur]",
+    usage: "=monter-lvl <tag joueur> <valeur>",
     example: "=monter-lvl @Ben'#7874 7"
 }
 
