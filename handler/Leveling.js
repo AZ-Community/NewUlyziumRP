@@ -141,4 +141,21 @@ module.exports = client => {
         let minXP = Math.pow(level, 2)*200*0.5 + level*200 + 200;
         return minXP;
     }
+
+    client.playerLevelUp = (id, lvlToAdd) => {
+        return new Promise((resolve, reject) => {
+            client.con.query(`SELECT * FROM player WHERE id = '${id}';`, (err, rows) => {
+                if(err) reject(err);
+                
+                if(rows.length < 1){
+                    resolve(false);
+                }else{
+                    client.con.query(`UPDATE player SET level = ${parseInt(rows[0].level) + lvlToAdd} WHERE id = '${id}';`, err => {
+                        if(err) reject(err);
+                        resolve(true);
+                    })
+                }
+            });
+        });
+    }
 }
