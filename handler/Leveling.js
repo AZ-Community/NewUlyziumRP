@@ -138,7 +138,7 @@ module.exports = client => {
     }
 
     client.xpMaxFromLevel = level => {
-        let minXP = Math.pow(level, 2)*200*0.5 + level*200 + 200;
+        let minXP = Math.pow(level, 2)*100 + level*200 + 200;
         return minXP;
     }
 
