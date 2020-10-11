@@ -57,6 +57,11 @@ module.exports = client => {
         });
     }
 
+    client.xpMaxFromLevel = level => {
+        let minXP = Math.pow(level, 2)*100 + level*200 + 200;
+        return minXP;
+    }
+
     /**
      * client.playerAddXP -> Add an amount of XP to a player.
      * @param {*} id - Player discord id.
@@ -76,7 +81,7 @@ module.exports = client => {
                         resolve(true);
                     });
                 }else{
-                    let playerXP = parseInt(rows[0].xp), playerMaxXP = parseInt(rows[0].xpmax);
+                    let playerXP = parseInt(rows[0].xp), playerMaxXP = client.playerMaxXP(parseInt(rows[0].level));
                     let xpToAdd;
 
                     if(force) {
@@ -135,11 +140,6 @@ module.exports = client => {
                 }
             });
         });
-    }
-
-    client.xpMaxFromLevel = level => {
-        let minXP = Math.pow(level, 2)*100 + level*200 + 200;
-        return minXP;
     }
 
     client.playerLevelUp = (id, lvlToAdd) => {
