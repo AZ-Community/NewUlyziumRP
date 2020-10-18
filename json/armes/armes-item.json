@@ -1,0 +1,22 @@
+[
+	{"id": "MLE-001", "name": "Salanza" },
+	{"id": "MLE-002", "name": "Rayzor" },
+	{"id": "MLE-003", "name": "Brulyus" },
+	{"id": "MLE-004", "name": "Segny" },
+	
+	{"id": "MLE-005", "name": "Lunus" },
+	{"id": "MLE-006", "name": "Equinox" },
+	{"id": "MLE-007", "name": "Bellya" },
+	{"id": "MLE-008", "name": "Dualyx" },
+	
+	{"id": "MLE-009", "name": "Pendra" },
+	{"id": "MLE-0010", "name": "El Rosa" },
+	{"id": "MLE-0011", "name": "Dues" },
+	{"id": "MLE-0012", "name": "Guerz" },
+
+	{"id": "MLE-0013", "name": "Dregnyx" },
+	{"id": "MLE-0014", "name": "Phosbos" },
+	{"id": "MLE-0015", "name": "Cendro" },
+	{"id": "MLE-0016", "name": "Saryn" }
+
+]
