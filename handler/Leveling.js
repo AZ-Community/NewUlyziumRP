@@ -80,8 +80,8 @@ module.exports = client => {
                         if(err) reject(err);
                         resolve(true);
                     });
-                }else{
-                    let playerXP = parseInt(rows[0].xp), playerMaxXP = client.playerMaxXP(parseInt(rows[0].level));
+               }else{
+                    let playerXP = parseInt(rows[0].xp), playerMaxXP = client.xpMaxFromLevel(parseInt(rows[0].level));
                     let xpToAdd;
 
                     if(force) {

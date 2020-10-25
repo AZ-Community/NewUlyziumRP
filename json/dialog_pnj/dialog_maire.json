@@ -1,0 +1,25 @@
+[
+    {  "dialogs": {
+			"0":  {
+				"dialog_pnj": "Salutation jeunes gens, quel bon vent vous amène en ce lieu ?", 
+				"answers": {			
+					"1️⃣": "Rien, je me suis trompé d'endroit, aurevoir.",
+					"2️⃣": "Je suis nouveau en ville, je suis donc passez voir le maire."
+					},
+				"rewards": {
+					"exp": 30,
+					"title": "Atossien(ne)",
+					"Zium's": 2,
+					"Pièce Oru": 10
+					}
+				},
+			"1": { 
+				"dialog_pnj": "Ohh, vous êtes nouveau ! Eh bien, si vous souhaitez vous établir dans cette merveilleuse ville, je vous pris d'agréer à ma demande, en enregistrant tous les détails vous concernant sur un document et de me les rendre.\nJe précise que l'accessibilité pendant que vous êtes là, que ce document sera restreint, si vous souhaitez apporter une quelconque modification à vos archives vous serez capable de le faire gratuitement sous une durée de 7 jours, soit 1 semaine, mais une fois que votre présence s'éternisera dans notre ville, l'accès à vos archives sera payant, je vous pris de comprendre les choses, un maire doit tout aussi gagner sa vie, hahaha !",
+				"answers": {
+					},
+				"rewards": {
+					}
+				}	
+			}
+		}
+]
