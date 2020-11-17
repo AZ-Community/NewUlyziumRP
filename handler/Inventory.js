@@ -58,4 +58,11 @@ module.exports = client => {
   			});
 		});
 	}
+	client.resetInventory = (idPlayer) => {
+		return new Promise((reject) => {
+			client.con.query(`DELETE FROM inventory WHERE idplayer=${idPlayer}`, (err) => {
+				if(err) reject(err);
+			});
+		});
+	}
 }
