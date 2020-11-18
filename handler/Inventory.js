@@ -5,7 +5,6 @@ module.exports = client => {
 	itemsTemp.forEach(item => {
 		items.set(item.id, item);
 	});
-	console.log(items);
 	client.itemsTemp = null;
 
 	/*
@@ -16,13 +15,21 @@ module.exports = client => {
      */
     client.giveToPlayerItem = (idPlayer, itemID, quantity) => {
         return new Promise((resolve, reject) => {
-			client.con.query(`SELECT * FROM inventory WHERE idplayer = ${idPlayer} AND itemid = ${itemID}`, (err, rows) => {
-				if(rows == null){
-					client.con.query(`INSERT INTO inventory (idplayer, itemid, quantity) VALUES ('${idPlayer}','${itemID}', '${quantity}')`, (err) => {
-						if(err) reject(err);
-					});
+			client.con.query(`SELECT * FROM inventory WHERE idplayer ='${idPlayer}' AND itemid ='${itemID}'`, (err, rows) => {
+				if(err) reject(err);
+				console.log(rows);
+				if(rows.length >= 1){
+					if(rows[0].quantity + quantity == 0){
+						client.con.query(`DELETE FROM inventory WHERE idplayer= '${idPlayer}' AND itemid='${itemID}'`, (err) => {
+							if(err) reject(err);	
+						});
+					}else{
+						client.con.query(`UPDATE inventory SET quantity='${rows[0].quantity -  quantity}' WHERE idplayer='${idPlayer}' AND itemid='${itemID}'`, (err) => {
+							if(err) reject(err);
+						});
+					}
 				}else{
-					client.con.query(`UPDATE inventory SET quantity= ${rows.quantity + quantity} WHERE idplayer = ${idPlayer} AND itemid= ${itemID}`, (err) => {
+					client.con.query(`INSERT INTO inventory (idplayer, itemid, quantity) VALUES ('${idPlayer}','${itemID}', '${Math.abs(quantity)}')`, (err) => {
 						if(err) reject(err);
 					});
 				}
