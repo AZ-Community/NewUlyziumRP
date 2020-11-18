@@ -31,7 +31,7 @@ exports.run = async (client, message, args) => {
 		if(typeof item != "string"){	
 			inventoryEmbed.addField("╺─────み─────╸", `Votre inventaire`);
 			for(const[name,quantity] of item){
-				inventoryEmbed.addField(`${name} - ${quantity}`, "Effet:..");
+				inventoryEmbed.addField(`${name}*${quantity}`, "Effet:..");
 			}
 		}else{
 			inventoryEmbed.addField("╺─────み─────╸", item);

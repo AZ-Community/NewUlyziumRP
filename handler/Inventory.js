@@ -24,9 +24,15 @@ module.exports = client => {
 							if(err) reject(err);	
 						});
 					}else{
-						client.con.query(`UPDATE inventory SET quantity='${rows[0].quantity -  quantity}' WHERE idplayer='${idPlayer}' AND itemid='${itemID}'`, (err) => {
-							if(err) reject(err);
-						});
+						if(quantity > 0){
+							client.con.query(`UPDATE inventory SET quantity='${rows[0].quantity - quantity}' WHERE idplayer='${idPlayer}' AND itemid='${itemID}'`, (err) => {
+								if(err) reject(err);
+							});		
+						}else{
+							client.con.query(`UPDATE inventory SET quantity='${rows[0].quantity + quantity}' WHERE idplayer='${idPlayer}' AND itemid='${itemID}'`, (err) => {
+								if(err) reject(err);
+							});		
+						}
 					}
 				}else{
 					client.con.query(`INSERT INTO inventory (idplayer, itemid, quantity) VALUES ('${idPlayer}','${itemID}', '${Math.abs(quantity)}')`, (err) => {
@@ -59,7 +65,9 @@ module.exports = client => {
         	client.con.query("SELECT * FROM inventory WHERE idplayer=" + idPlayer, (err, rows) => {
             	if(err) reject(err);
             	if(rows.length >= 1){
-	            	for(let i = 0; i < rows.length; i++) listMap.set(client.itemInformation(rows[i].itemid, "name"), rows[i].quantity);
+	            	for(let i = 0; i < rows.length; i++){  
+						listMap.set(client.itemInformation(rows[i].itemid, "name"), rows[i].quantity);
+					}
     	            resolve(listMap);					
             	}else resolve('Inventaire vide...');
   			});
