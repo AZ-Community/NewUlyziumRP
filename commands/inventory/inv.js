@@ -27,7 +27,6 @@ exports.run = async (client, message, args) => {
 		}
 	}else{ //Sinon on retourne son inventaire
 		item = await client.returnInventory(message.author.id);
-		console.log(item);
 		if(typeof item != "string"){	
 			inventoryEmbed.addField("╺─────み─────╸", `Votre inventaire`);
 			for(const[name,quantity] of item){
