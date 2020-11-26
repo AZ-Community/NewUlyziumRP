@@ -1,22 +1,25 @@
 const fs = require('fs');
+const { resolve } = require('path');
 module.exports = client => {
 	/* Reload items from DB*/
 	const items = new Map();
-	client.loadItems = () => {
+	client.loadItems = async () => {
 		items.clear();
 		client.con.query("SELECT * FROM itemLists", (err, rows) => {
+			console.log('----------------------------------------------------------')
+			console.log("Initialisation des items...");
 			for(var i = 0; i < rows.length; i++){
 				itemListType = JSON.parse(rows[i].items);
-				if(Object.keys(itemListType).length < 1) return;
+				if(Object.keys(itemListType).length < 0) return;
 				itemListType.forEach( item => {
-					items.set(rows[i].type+"-"+item.id, item);
+                   	items.set(rows[i].type+"-"+item.id, item);
 				});
-				console.log(items);
 			}
+			console.log(items);
+			console.log("----------------------------------------------------------");
 		});
 	}
 	client.addInvDatabase = (obj, nameObj) =>{
-		const itemToAdd = new Map();
 		return new Promise((resolve, reject) => {
 			if(!nameObj){
 				client.con.query(`INSERT INTO itemLists(type, items) VALUES('${obj}', '${JSON.stringify(itemToAdd)}')`, (err) => {
@@ -28,42 +31,60 @@ module.exports = client => {
 					if(err) reject(err);
 					if(rows.length <= 0) reject("Le type n'existe pas");
 					const itemsLoad = JSON.parse(rows[0].items);
-					if(Object.keys(itemsLoad).length > 0){
-						itemsLoad.forEach(item => {
-							itemToAdd.set(rows[0].type+"-"+item.id, item);
-						});
-					}
-					itemToAdd.set(rows[0].type+"-"+itemToAdd.size+1, client.itemExample(itemToAdd.size+1, nameObj));
+					items.set(rows[0].type+"-"+(items.size+1), JSON.parse(client.itemExample(items.size+1, nameObj)));
+					if(itemsLoad.size > 0) client.loadItems();
 					//On transforme la map en string
 					var mapToJson = `[\n`;
-					var sizeMap = 0;
-					itemToAdd.forEach( item => {
+					let sizeMap = 0;
+					items.forEach( item => {
+						console.log(item);
+						mapToJson += (items.size == (sizeMap + 1)) ? client.itemExample(item.id, item.name) + "\n" : client.itemExample(item.id, item.name) + ", \n";
 						sizeMap++;
-						if(itemToAdd.size == sizeMap){
-							mapToJson += ` { "id": ${item.id}, "name": "${item.name}" } \n`;
-						}else{
-							mapToJson += ` { "id": ${item.id}, "name": "${item.name}" }, \n`;
-						}
 					});
 					mapToJson += `]`;
 					//On envoie la requête
+					console.log(mapToJson);
 					client.con.query(`UPDATE itemLists SET items='${mapToJson}' WHERE type = '${obj}';`, (err) => {
 						if(err) reject(err);
+						client.loadItems();
 						resolve(`Votre item **${nameObj}** a été inséré :white_check_mark:`);
 					});
 				});
 			}
 		});
 	}
-	client.modifyInvDatabase = (obj, idObj) => {
+	client.modifyInvDatabase = (obj, newObj, param) => {
+		return new Promise((resolve, reject) => {
+			if(!param){
+				client.con.query(`SELECT * FROM itemLists WHERE type='${obj}';`, (err, rows) => {
+					if(err) reject (err);
+					console.log(rows)
+					client.con.query(`UPDATE itemLists SET type ='${newObj}' WHERE type='${rows[0].type}'`, (err) =>{
+						if(err) reject (err);
+						client.loadItems();
+						resolve(`Le type ${obj} a été renommé en ${newObj}`);
+					});
+				});
+			}else{
+				switch(param){
+					case "setDescription":
+						break;
+					case "setDetails":
 
+						break;
+					default:
+						resolve("Veuillez me dire précisément ce que vous voulez modifier")
+						break;
+				}
+			}
+		});
 	}
 	client.removeInvDatabase = (obj, idObj) => {
 
 	}
 
 	client.itemExample = (id, obj) => {
-		return {"id": id, "name": obj};
+		return `{"id": ${id}, "name": "${obj}", "details": { "DAMAGE": 0, "PROTECTION": 0, "CRAFTABLE": false}, "craftable": {} , "description": ""}`;
 	}
 
 	

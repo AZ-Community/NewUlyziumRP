@@ -15,7 +15,7 @@ exports.run = async (client, message, args) => {
 				client.giveToPlayerItem(message.author.id, args[1],  (args[2] || 1));
 		        return message.channel.send({embed: {color: "GREEN", description: `:white_check_mark: <@${message.author.id}>, L'item **${client.itemInformation(args[1], "name")}**  a bien été envoyé à l'utilisateur!`}});
 			} else {
-				 return message.channel.send({embed: {color: "RED", description: `:x: <@${message.author.id}>, Vous avez annulé la reuqête.`}});
+				 return message.channel.send({embed: {color: "RED", description: `:x: <@${message.author.id}>, Vous avez annulé la requête.`}});
 			}
 		}).catch(collected => {
 			message.reply("Vous n'avez pas réagis donc la requête s'annule.");
