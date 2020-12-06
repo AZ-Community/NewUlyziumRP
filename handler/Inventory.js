@@ -10,19 +10,19 @@ module.exports = client => {
 			console.log("Initialisation des items...");
 			for(var i = 0; i < rows.length; i++){
 				itemListType = JSON.parse(rows[i].items);
-				if(Object.keys(itemListType).length < 0) return;
+				if(Object.keys(itemListType).length <= 0) return;
 				itemListType.forEach( item => {
-                   	items.set(rows[i].type+"-"+item.id, item);
+					items.set(rows[i].type+"-"+item.id, item);
 				});
 			}
 			console.log(items);
 			console.log("----------------------------------------------------------");
 		});
 	}
-	client.addInvDatabase = (obj, nameObj) =>{
+	client.addInvDatabase = (obj, nameObj = undefined) =>{
 		return new Promise((resolve, reject) => {
 			if(!nameObj){
-				client.con.query(`INSERT INTO itemLists(type, items) VALUES('${obj}', '${JSON.stringify(itemToAdd)}')`, (err) => {
+				client.con.query(`INSERT INTO itemLists(type, items) VALUES('${obj}', '{}')`, (err) => {
 					if(err) reject(err);
 					resolve(`Votre type ${obj} est crée`);
 				});
@@ -32,18 +32,9 @@ module.exports = client => {
 					if(rows.length <= 0) reject("Le type n'existe pas");
 					const itemsLoad = JSON.parse(rows[0].items);
 					items.set(rows[0].type+"-"+(items.size+1), JSON.parse(client.itemExample(items.size+1, nameObj)));
-					if(itemsLoad.size > 0) client.loadItems();
-					//On transforme la map en string
-					var mapToJson = `[\n`;
-					let sizeMap = 0;
-					items.forEach( item => {
-						console.log(item);
-						mapToJson += (items.size == (sizeMap + 1)) ? client.itemExample(item.id, item.name) + "\n" : client.itemExample(item.id, item.name) + ", \n";
-						sizeMap++;
-					});
-					mapToJson += `]`;
+					if(itemsLoad.size > 0) client.loadItems();	
 					//On envoie la requête
-					console.log(mapToJson);
+					mapToJson = client.changeMapToJson();
 					client.con.query(`UPDATE itemLists SET items='${mapToJson}' WHERE type = '${obj}';`, (err) => {
 						if(err) reject(err);
 						client.loadItems();
@@ -53,40 +44,87 @@ module.exports = client => {
 			}
 		});
 	}
-	client.modifyInvDatabase = (obj, newObj, param) => {
+	//Modifier le nom du type
+	client.modifyTypeDatabase = (type, newType) => {
 		return new Promise((resolve, reject) => {
-			if(!param){
-				client.con.query(`SELECT * FROM itemLists WHERE type='${obj}';`, (err, rows) => {
+			client.con.query(`SELECT * FROM itemLists WHERE type='${type}';`, (err, rows) => {
+				if(err) reject (err);
+				console.log(rows)
+				client.con.query(`UPDATE itemLists SET type ='${newType}' WHERE type='${rows[0].type}'`, (err) =>{
 					if(err) reject (err);
-					console.log(rows)
-					client.con.query(`UPDATE itemLists SET type ='${newObj}' WHERE type='${rows[0].type}'`, (err) =>{
-						if(err) reject (err);
-						client.loadItems();
-						resolve(`Le type ${obj} a été renommé en ${newObj}`);
-					});
+					client.loadItems();
+					resolve(`Le type ${type} a été renommé en ${rows[0].type}`);
 				});
-			}else{
-				switch(param){
-					case "setDescription":
-						break;
-					case "setDetails":
-
-						break;
-					default:
-						resolve("Veuillez me dire précisément ce que vous voulez modifier")
-						break;
-				}
-			}
+			});
 		});
 	}
-	client.removeInvDatabase = (obj, idObj) => {
+
+	client.modifyInvDatabase = (type, idObj, param, paramValue) => {
+		return new Promise((resolve, reject) => {
+			items.forEach((value, key) => {
+				if(Object(key).localeCompare(type+"-"+idObj) == 0) {
+					switch(param){
+						case "setDamage":
+							if(isNaN(paramValue)){
+								reject({embed: {"description": ":x: Il me faut un nombre entier", "color": "RED"}});
+								return;
+							}
+							value.details.DAMAGE = paramValue;
+							break;
+						case "setProtection":
+							if(isNaN(paramValue)){
+								reject({embed: {"description": ":x: Il me faut un nombre entier", "color": "RED"}});
+								return;
+							}
+							value.details.PROTECTION = paramValue;
+							break;
+						case "setCraftable":
+							break;
+						case "setDescription":
+							break;
+						default:
+							reject({embed :{"description" : "Veuillez utiliser un paramètre à modifier! \n Plus d'information avec la commande =items"}});
+							break;
+					}
+					//On met à jours nos changements
+					mapToJson = client.changeMapToJson();
+					console.log(mapToJson);
+					client.con.query(`UPDATE itemLists SET items = '${mapToJson}' WHERE type = '${type}'`, (err) => { 	
+						if(err) reject(err);
+						client.loadItems();
+					});
+					resolve(":white_check_mark: La modification a bien été faite");	
+				}
+			});
+			resolve({embed: {"description": `L'id suivant ${idObj} dans le type ${type} est inexistant`, "color": "RED"}});	
+		});
+	}
+
+	client.removeTypeDatabase = (type) => {
+	
+	}
+	
+	client.removeInvDatabase = (type, idObj) => {
 
 	}
 
-	client.itemExample = (id, obj) => {
-		return `{"id": ${id}, "name": "${obj}", "details": { "DAMAGE": 0, "PROTECTION": 0, "CRAFTABLE": false}, "craftable": {} , "description": ""}`;
+	client.itemExample = (id, obj, value = {"damage": 0, "protection": 0, "craftable": false, "description": "Description initiale"})  => {
+		return `{"id": ${id}, "name": "${obj}", "details": { "DAMAGE": ${value.damage} , "PROTECTION": ${value.protection}, 
+		"CRAFTABLE": ${value.craftable}}, "craftable": {} , "description": "${value.description}"}`;
 	}
 
+	client.changeMapToJson = () => {
+		var mapToJson = `[\n`;
+		let sizeMap = 0;
+		items.forEach( item => {
+			mapToJson += (items.size == (sizeMap + 1)) ? client.itemExample(item.id, item.name, {"damage": (item.details.DAMAGE || 0), "protection": ( item.details.PROTECTION || 0),
+										"craftable": ( item.details.CRAFTABLE || false)}) + 
+			"\n" : client.itemExample(item.id, item.name, {"damage": (item.details.DAMAGE || 0), "protection": ( item.details.PROTECTION || 0)} ) + ", \n";
+			sizeMap++;
+		});
+		mapToJson += `]`;
+		return mapToJson;
+	}
 	
 	/*
      * client.giveToPlayerItem -> Give Player item

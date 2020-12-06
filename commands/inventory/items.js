@@ -9,7 +9,7 @@ exports.run = async (client, message, args) => {
             message.channel.send(await client.addInvDatabase(args[1].toUpperCase()));
             break;
         case "modifyType":
-            message.channel.send(await client.modifyInvDatabase(args[1].toUpperCase(), args[2].toUpperCase()));
+            message.channel.send(await client.modifyTypeDatabase(args[1].toUpperCase(), args[2].toUpperCase()));
             break;
         case "removeType":
             break;
@@ -17,6 +17,7 @@ exports.run = async (client, message, args) => {
             message.channel.send(await client.addInvDatabase(args[1].toUpperCase(), args[2]));
             break;
         case "modifyItem":
+						message.channel.send(await client.modifyInvDatabase(args[1].toUpperCase(), args[2], args[3], args[4]));
             break;
         case "removeItem":
             break;
