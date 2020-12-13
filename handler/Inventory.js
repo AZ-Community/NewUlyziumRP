@@ -19,15 +19,20 @@ module.exports = client => {
 			console.log("----------------------------------------------------------");
 		});
 	}
-	client.addInvDatabase = (obj, nameObj = undefined) =>{
+	client.addInvDatabase = (type, args = undefined) =>{
 		return new Promise((resolve, reject) => {
-			if(!nameObj){
-				client.con.query(`INSERT INTO itemLists(type, items) VALUES('${obj}', '{}')`, (err) => {
+			if(!args){
+				client.con.query(`INSERT INTO itemLists(type, items) VALUES('${type}', '{}')`, (err) => {
 					if(err) reject(err);
-					resolve(`Votre type ${obj} est crée`);
+					resolve(`Votre type ${type} est crée`);
 				});
 			}else{
-				client.con.query(`SELECT * FROM itemLists WHERE type = '${obj}'`, (err, rows) => {
+				var nameObj = "";
+				console.log(args);
+				for (var i = 2; i < args.length;  i++){
+					nameObj += args[i] + " "
+				}
+				client.con.query(`SELECT * FROM itemLists WHERE type = '${type}'`, (err, rows) => {
 					if(err) reject(err);
 					if(rows.length <= 0) reject("Le type n'existe pas");
 					const itemsLoad = JSON.parse(rows[0].items);
@@ -35,7 +40,7 @@ module.exports = client => {
 					if(itemsLoad.size > 0) client.loadItems();	
 					//On envoie la requête
 					mapToJson = client.changeMapToJson();
-					client.con.query(`UPDATE itemLists SET items='${mapToJson}' WHERE type = '${obj}';`, (err) => {
+					client.con.query(`UPDATE itemLists SET items='${mapToJson}' WHERE type = '${type}';`, (err) => {
 						if(err) reject(err);
 						client.loadItems();
 						resolve(`Votre item **${nameObj}** a été inséré :white_check_mark:`);
@@ -59,28 +64,47 @@ module.exports = client => {
 		});
 	}
 
-	client.modifyInvDatabase = (type, idObj, param, paramValue) => {
+	client.modifyInvDatabase = (type, idObj, param, args) => {
 		return new Promise((resolve, reject) => {
 			items.forEach((value, key) => {
-				if(Object(key).localeCompare(type+"-"+idObj) == 0) {
+				if(Object(key).localeCompare(idObj.toUpperCase()) == 0) {
 					switch(param){
 						case "setDamage":
-							if(isNaN(paramValue)){
+							if(isNaN(args[4])){
 								reject({embed: {"description": ":x: Il me faut un nombre entier", "color": "RED"}});
 								return;
 							}
-							value.details.DAMAGE = paramValue;
+							value.details.DAMAGE = args[4];
 							break;
 						case "setProtection":
-							if(isNaN(paramValue)){
+							if(isNaN(args[4])){
 								reject({embed: {"description": ":x: Il me faut un nombre entier", "color": "RED"}});
 								return;
 							}
-							value.details.PROTECTION = paramValue;
+							value.details.PROTECTION = args[4];
 							break;
 						case "setCraftable":
+							var craftMap = new Map();
+							for(var i=4; i < args.length; i++) {
+								if(args[i] != "|" && client.itemInformation(args[i], "id")){
+									if(!isNaN(parseInt(args[i+1]))){
+										craftMap.set(args[i], parseInt(args[i+1]));
+									}
+								}
+							}
+							value.details.CRAFTABLE = true;
+							let obj = Array.from(craftMap).reduce((obj, [key,value]) => (
+								Object.assign(obj, {[key]: value})
+							),{});
+							value.craftable = obj;
 							break;
 						case "setDescription":
+							var description = "";
+							for(var i =4; i < args.length; i++){
+								description += args[i] + " ";	
+							}
+							console.log(description);
+							value.description = description;		
 							break;
 						default:
 							reject({embed :{"description" : "Veuillez utiliser un paramètre à modifier! \n Plus d'information avec la commande =items"}});
@@ -96,30 +120,44 @@ module.exports = client => {
 					resolve(":white_check_mark: La modification a bien été faite");	
 				}
 			});
-			resolve({embed: {"description": `L'id suivant ${idObj} dans le type ${type} est inexistant`, "color": "RED"}});	
+			resolve ({embed: {"description": `L'id suivant ${idObj} dans le type ${type} est inexistant`, "color": "RED"}});	
 		});
 	}
 
 	client.removeTypeDatabase = (type) => {
-	
+		return new Promise((resolve, reject) => {
+			client.con.query(`DELETE FROM itemLists WHERE type='${type}'`, (err) => {
+				if(err) reject(err);
+				resolve({embed: {"description": "Votre liste et ses items ont été retirés.", "color": "RED"}})
+			});	
+		}); 	
 	}
 	
 	client.removeInvDatabase = (type, idObj) => {
 
 	}
 
-	client.itemExample = (id, obj, value = {"damage": 0, "protection": 0, "craftable": false, "description": "Description initiale"})  => {
+	client.itemExample = (id, obj, value = {"damage": 0, "protection": 0, "craftable": false, "craft": {},  "description": "Description initiale"})  => {
 		return `{"id": ${id}, "name": "${obj}", "details": { "DAMAGE": ${value.damage} , "PROTECTION": ${value.protection}, 
-		"CRAFTABLE": ${value.craftable}}, "craftable": {} , "description": "${value.description}"}`;
+		"CRAFTABLE": ${value.craftable}}, "craftable": ${value.craft}, "description": "${value.description}"}`;
 	}
 
 	client.changeMapToJson = () => {
 		var mapToJson = `[\n`;
 		let sizeMap = 0;
 		items.forEach( item => {
+			craft = "{";
+			let totalItem = 0;
+			console.log(Object.entries(item.craftable));
+			for(const [key,value] of Object.entries(item.craftable)){
+				craft += ((totalItem +1) == Object.entries(item.craftable).length) ? `"${key}": ${value}` : `"${key}": ${value},`;	
+				totalItem++;
+			}
+			craft += "}";
 			mapToJson += (items.size == (sizeMap + 1)) ? client.itemExample(item.id, item.name, {"damage": (item.details.DAMAGE || 0), "protection": ( item.details.PROTECTION || 0),
-										"craftable": ( item.details.CRAFTABLE || false)}) + 
-			"\n" : client.itemExample(item.id, item.name, {"damage": (item.details.DAMAGE || 0), "protection": ( item.details.PROTECTION || 0)} ) + ", \n";
+				"craftable": ( item.details.CRAFTABLE || false), "craft": craft, "description": ( item.description || "Aucune description.") }) + "\n" : 
+				client.itemExample(item.id, item.name,  {"damage": (item.details.DAMAGE || 0), "protection": ( item.details.PROTECTION || 0),
+				"craftable": ( item.details.CRAFTABLE || false), "craft": craft, "description": (item.description || "Aucune description.") }) + ", \n";
 			sizeMap++;
 		});
 		mapToJson += `]`;
@@ -133,32 +171,32 @@ module.exports = client => {
      * @param {*} quantity - Quantity. (set to one by default) 
      */
     client.giveToPlayerItem = (idPlayer, itemID, quantity) => {
-        return new Promise((resolve, reject) => {
-			client.con.query(`SELECT * FROM inventory WHERE idplayer ='${idPlayer}' AND itemid ='${itemID}'`, (err, rows) => {
-				if(err) reject(err);
-				if(rows.length >= 1){
-					if(quantity > 0){
-						if(rows[0].quantity - quantity < 0){
-							client.con.query(`DELETE FROM inventory WHERE idplayer= '${idPlayer}' AND itemid='${itemID}'`, (err) => {
-								if(err) reject(err);	
-							});
+			return new Promise((resolve, reject) => {
+				client.con.query(`SELECT * FROM inventory WHERE idplayer ='${idPlayer}' AND itemid ='${itemID}'`, (err, rows) => {
+					if(err) reject(err);
+					if(rows.length >= 1){
+						if(quantity > 0){
+							if(rows[0].quantity - quantity < 0){
+								client.con.query(`DELETE FROM inventory WHERE idplayer= '${idPlayer}' AND itemid='${itemID}'`, (err) => {
+									if(err) reject(err);	
+								});
+							}else{
+								client.con.query(`UPDATE inventory SET quantity='${rows[0].quantity - quantity}' WHERE idplayer='${idPlayer}' AND itemid='${itemID}'`, (err) => {
+									if(err) reject(err);
+								});	
+							}
 						}else{
-							client.con.query(`UPDATE inventory SET quantity='${rows[0].quantity - quantity}' WHERE idplayer='${idPlayer}' AND itemid='${itemID}'`, (err) => {
+							client.con.query(`UPDATE inventory SET quantity='${rows[0].quantity + quantity}' WHERE idplayer='${idPlayer}' AND itemid='${itemID}'`, (err) => {
 								if(err) reject(err);
-							});	
+							});		
 						}
 					}else{
-						client.con.query(`UPDATE inventory SET quantity='${rows[0].quantity + quantity}' WHERE idplayer='${idPlayer}' AND itemid='${itemID}'`, (err) => {
+						client.con.query(`INSERT INTO inventory (idplayer, itemid, quantity) VALUES ('${idPlayer}','${itemID}', '${Math.abs(quantity)}')`, (err) => {
 							if(err) reject(err);
-						});		
+						});
 					}
-				}else{
-					client.con.query(`INSERT INTO inventory (idplayer, itemid, quantity) VALUES ('${idPlayer}','${itemID}', '${Math.abs(quantity)}')`, (err) => {
-						if(err) reject(err);
-					});
-				}
-			});		
-        });
+				});		
+			});
     }
 	/*
 	 *client.isAValidItemID -> Return if it's a good item or not 

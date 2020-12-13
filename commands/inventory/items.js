@@ -14,10 +14,10 @@ exports.run = async (client, message, args) => {
         case "removeType":
             break;
         case "addItem":
-            message.channel.send(await client.addInvDatabase(args[1].toUpperCase(), args[2]));
+            message.channel.send(await client.addInvDatabase(args[1].toUpperCase(), args));
             break;
         case "modifyItem":
-						message.channel.send(await client.modifyInvDatabase(args[1].toUpperCase(), args[2], args[3], args[4]));
+						message.channel.send(await client.modifyInvDatabase(args[1].toUpperCase(), args[2], args[3], args));
             break;
         case "removeItem":
             break;
