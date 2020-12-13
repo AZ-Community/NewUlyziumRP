@@ -6,19 +6,21 @@ module.exports = client => {
 	client.loadItems = async () => {
 		items.clear();
 		client.con.query("SELECT * FROM itemLists", (err, rows) => {
-			console.log('----------------------------------------------------------')
-			console.log("Initialisation des items...");
 			for(var i = 0; i < rows.length; i++){
-				itemListType = JSON.parse(rows[i].items);
-				if(Object.keys(itemListType).length <= 0) return;
-				itemListType.forEach( item => {
-					items.set(rows[i].type+"-"+item.id, item);
-				});
+				itemsInType = new Map(); //La liste des items rangés dans sa classe.
+				itemListType = JSON.parse(rows[i].items); 
+				if(Object.keys(itemListType).length > 0){
+					itemListType.forEach( item => {
+						itemsInType.set(rows[i].type+"-"+item.id, item);
+					});
+				}
+				items.set(rows[i].type, itemsInType);
 			}
 			console.log(items);
-			console.log("----------------------------------------------------------");
+			itemsInType = undefined;
 		});
 	}
+	
 	client.addInvDatabase = (type, args = undefined) =>{
 		return new Promise((resolve, reject) => {
 			if(!args){
@@ -28,7 +30,6 @@ module.exports = client => {
 				});
 			}else{
 				var nameObj = "";
-				console.log(args);
 				for (var i = 2; i < args.length;  i++){
 					nameObj += args[i] + " "
 				}
@@ -36,10 +37,10 @@ module.exports = client => {
 					if(err) reject(err);
 					if(rows.length <= 0) reject("Le type n'existe pas");
 					const itemsLoad = JSON.parse(rows[0].items);
-					items.set(rows[0].type+"-"+(items.size+1), JSON.parse(client.itemExample(items.size+1, nameObj)));
+					items.forEach((value, key) => {if(type == key) value.set(type+"-"+(value.size+1), JSON.parse(client.itemExample(value.size+1, nameObj))); });
 					if(itemsLoad.size > 0) client.loadItems();	
 					//On envoie la requête
-					mapToJson = client.changeMapToJson();
+					mapToJson = client.changeMapToJson(type);
 					client.con.query(`UPDATE itemLists SET items='${mapToJson}' WHERE type = '${type}';`, (err) => {
 						if(err) reject(err);
 						client.loadItems();
@@ -67,60 +68,64 @@ module.exports = client => {
 	client.modifyInvDatabase = (type, idObj, param, args) => {
 		return new Promise((resolve, reject) => {
 			items.forEach((value, key) => {
-				if(Object(key).localeCompare(idObj.toUpperCase()) == 0) {
-					switch(param){
-						case "setDamage":
-							if(isNaN(args[4])){
-								reject({embed: {"description": ":x: Il me faut un nombre entier", "color": "RED"}});
-								return;
-							}
-							value.details.DAMAGE = args[4];
-							break;
-						case "setProtection":
-							if(isNaN(args[4])){
-								reject({embed: {"description": ":x: Il me faut un nombre entier", "color": "RED"}});
-								return;
-							}
-							value.details.PROTECTION = args[4];
-							break;
-						case "setCraftable":
-							var craftMap = new Map();
-							for(var i=4; i < args.length; i++) {
-								if(args[i] != "|" && client.itemInformation(args[i], "id")){
-									if(!isNaN(parseInt(args[i+1]))){
-										craftMap.set(args[i], parseInt(args[i+1]));
+				value.forEach((itemValue, itemKey) => {
+					if(Object(itemKey).localeCompare(idObj.toUpperCase()) == 0) {
+									switch(param){
+										case "setDamage":
+											if(isNaN(args[4])){
+												reject({embed: {"description": ":x: Il me faut un nombre entier", "color": "RED"}});
+												return;
+											}
+											itemValue.details.DAMAGE = args[4];
+											break;
+										case "setProtection":
+											if(isNaN(args[4])){
+												reject({embed: {"description": ":x: Il me faut un nombre entier", "color": "RED"}});
+												return;
+											}
+											itemValue.details.PROTECTION = args[4];
+											break;
+										case "setCraftable":
+											var craftMap = new Map();
+											for(var i=4; i < args.length; i++) {
+												if(args[i] != "|" && client.itemInformation(args[i], "id")){
+													if(!isNaN(parseInt(args[i+1]))){
+														craftMap.set(args[i], parseInt(args[i+1]));
+														console.log("Ok");
+													}
+												}
+											}
+											itemValue.details.CRAFTABLE = true;
+											let obj = Array.from(craftMap).reduce((obj, [key,value]) => (
+												Object.assign(obj, {[key]: value})
+											),{});
+											console.log(obj);
+											itemValue.craftable = obj;
+											break;
+										case "setDescription":
+											var description = "";
+											for(var i =4; i < args.length; i++){
+												description += args[i] + " ";	
+											}
+											console.log(description);
+											itemValue.description = description;		
+											break;
+										default:
+											reject({embed :{"description" : "Veuillez utiliser un paramètre à modifier! \n Plus d'information avec la commande =items"}});
+											break;
 									}
-								}
-							}
-							value.details.CRAFTABLE = true;
-							let obj = Array.from(craftMap).reduce((obj, [key,value]) => (
-								Object.assign(obj, {[key]: value})
-							),{});
-							value.craftable = obj;
-							break;
-						case "setDescription":
-							var description = "";
-							for(var i =4; i < args.length; i++){
-								description += args[i] + " ";	
-							}
-							console.log(description);
-							value.description = description;		
-							break;
-						default:
-							reject({embed :{"description" : "Veuillez utiliser un paramètre à modifier! \n Plus d'information avec la commande =items"}});
-							break;
-					}
-					//On met à jours nos changements
-					mapToJson = client.changeMapToJson();
-					console.log(mapToJson);
-					client.con.query(`UPDATE itemLists SET items = '${mapToJson}' WHERE type = '${type}'`, (err) => { 	
-						if(err) reject(err);
-						client.loadItems();
-					});
+									//On met à jours nos changements
+									mapToJson = client.changeMapToJson(type);
+									console.log(mapToJson);
+									client.con.query(`UPDATE itemLists SET items = '${mapToJson}' WHERE type = '${type}'`, (err) => { 	
+										if(err) reject(err);
+										client.loadItems();
+									});
 					resolve(":white_check_mark: La modification a bien été faite");	
 				}
 			});
 			resolve ({embed: {"description": `L'id suivant ${idObj} dans le type ${type} est inexistant`, "color": "RED"}});	
+			});
 		});
 	}
 
@@ -137,28 +142,31 @@ module.exports = client => {
 
 	}
 
-	client.itemExample = (id, obj, value = {"damage": 0, "protection": 0, "craftable": false, "craft": {},  "description": "Description initiale"})  => {
+	client.itemExample = (id, obj, value = {"damage": 0, "protection": 0, "craftable": false, "craft": "{}",  "description": "Description initiale"})  => {
 		return `{"id": ${id}, "name": "${obj}", "details": { "DAMAGE": ${value.damage} , "PROTECTION": ${value.protection}, 
 		"CRAFTABLE": ${value.craftable}}, "craftable": ${value.craft}, "description": "${value.description}"}`;
 	}
 
-	client.changeMapToJson = () => {
+	client.changeMapToJson = (typeObj) => {
 		var mapToJson = `[\n`;
 		let sizeMap = 0;
-		items.forEach( item => {
-			craft = "{";
-			let totalItem = 0;
-			console.log(Object.entries(item.craftable));
-			for(const [key,value] of Object.entries(item.craftable)){
-				craft += ((totalItem +1) == Object.entries(item.craftable).length) ? `"${key}": ${value}` : `"${key}": ${value},`;	
-				totalItem++;
+		items.forEach((value,key) => {
+			if(key == typeObj){
+				value.forEach( item => {
+					let totalItem = 0;
+					craft = "{";
+					for(const [keyCraft,valueCraft] of Object.entries(item.craftable)){					
+						craft += ((totalItem +1) == Object.entries(item.craftable).length) ? `"${keyCraft}": ${valueCraft}` : `"${keyCraft}": ${valueCraft},`;	
+						totalItem++;
+					}
+					craft += "}";
+					mapToJson += (value.size == (sizeMap + 1)) ? client.itemExample(item.id, item.name, {"damage": (item.details.DAMAGE || 0), "protection": ( item.details.PROTECTION || 0),
+						"craftable": ( item.details.CRAFTABLE || false), "craft": craft, "description": ( item.description || "Aucune description.") }) + "\n" : 
+						client.itemExample(item.id, item.name,  {"damage": (item.details.DAMAGE || 0), "protection": ( item.details.PROTECTION || 0),
+						"craftable": ( item.details.CRAFTABLE || false), "craft": craft, "description": (item.description || "Aucune description.") }) + ", \n";
+					sizeMap++;
+				});
 			}
-			craft += "}";
-			mapToJson += (items.size == (sizeMap + 1)) ? client.itemExample(item.id, item.name, {"damage": (item.details.DAMAGE || 0), "protection": ( item.details.PROTECTION || 0),
-				"craftable": ( item.details.CRAFTABLE || false), "craft": craft, "description": ( item.description || "Aucune description.") }) + "\n" : 
-				client.itemExample(item.id, item.name,  {"damage": (item.details.DAMAGE || 0), "protection": ( item.details.PROTECTION || 0),
-				"craftable": ( item.details.CRAFTABLE || false), "craft": craft, "description": (item.description || "Aucune description.") }) + ", \n";
-			sizeMap++;
 		});
 		mapToJson += `]`;
 		return mapToJson;
@@ -203,16 +211,18 @@ module.exports = client => {
 	 *@param {*} itemID - ItemID
 	 *@param {*} nameOrID - Retourne le nom avec "name" ou l'id avec "id"
 	 */
-	client.itemInformation = (itemID, nameOrID) => {
-		for(let[key, value] of items){
-			if(itemID == key){
-				if(nameOrID == "id"){
-					return true;
-				}else if(nameOrID == "name"){
-					return value.name;
+	client.itemInformation = async (itemID, nameOrID) => {
+		items.forEach((value, key) => {
+			value.forEach((itemValue, itemKey) => {
+				if(itemID == itemKey){
+					if(nameOrID == "id"){
+						return true;
+					}else if(nameOrID == "name"){
+						return value.name;
+					}
 				}
-			}
-		}
+			});
+		});
 		return false;
 	}	
 	client.returnInventory = (idPlayer) => {
