@@ -68,8 +68,9 @@ module.exports = client => {
 	client.modifyInvDatabase = (type, idObj, param, args) => {
 		return new Promise((resolve, reject) => {
 			items.forEach((value, key) => {
-				value.forEach((itemValue, itemKey) => {
-					if(Object(itemKey).localeCompare(idObj.toUpperCase()) == 0) {
+				if(type == key){
+					value.forEach((itemValue, itemKey) => {
+						if(Object(itemKey).localeCompare(idObj.toUpperCase()) == 0) {
 									switch(param){
 										case "setDamage":
 											if(isNaN(args[4])){
@@ -121,10 +122,11 @@ module.exports = client => {
 										if(err) reject(err);
 										client.loadItems();
 									});
-					resolve(":white_check_mark: La modification a bien été faite");	
+							resolve(":white_check_mark: La modification a bien été faite");	
+						}
+					});
+				resolve ({embed: {"description": `L'id suivant ${idObj} dans le type ${type} est inexistant`, "color": "RED"}});	
 				}
-			});
-			resolve ({embed: {"description": `L'id suivant ${idObj} dans le type ${type} est inexistant`, "color": "RED"}});	
 			});
 		});
 	}
@@ -183,7 +185,7 @@ module.exports = client => {
 				client.con.query(`SELECT * FROM inventory WHERE idplayer ='${idPlayer}' AND itemid ='${itemID}'`, (err, rows) => {
 					if(err) reject(err);
 					if(rows.length >= 1){
-						if(quantity > 0){
+						if(quantity < 0){
 							if(rows[0].quantity - quantity < 0){
 								client.con.query(`DELETE FROM inventory WHERE idplayer= '${idPlayer}' AND itemid='${itemID}'`, (err) => {
 									if(err) reject(err);	
@@ -194,7 +196,7 @@ module.exports = client => {
 								});	
 							}
 						}else{
-							client.con.query(`UPDATE inventory SET quantity='${rows[0].quantity + quantity}' WHERE idplayer='${idPlayer}' AND itemid='${itemID}'`, (err) => {
+							client.con.query(`UPDATE inventory SET quantity='${(rows[0].quantity + quantity)}' WHERE idplayer='${idPlayer}' AND itemid='${itemID}'`, (err) => {
 								if(err) reject(err);
 							});		
 						}
@@ -211,32 +213,32 @@ module.exports = client => {
 	 *@param {*} itemID - ItemID
 	 *@param {*} nameOrID - Retourne le nom avec "name" ou l'id avec "id"
 	 */
-	client.itemInformation = async (itemID, nameOrID) => {
-		items.forEach((value, key) => {
-			value.forEach((itemValue, itemKey) => {
-				if(itemID == itemKey){
-					if(nameOrID == "id"){
-						return true;
-					}else if(nameOrID == "name"){
-						return value.name;
+	client.itemInformation = (itemID) => {
+		return new Promise((resolve, reject) => {
+			items.forEach((value, key) => {
+				value.forEach((itemValue, itemKey) => {
+					if(itemID == itemKey){
+						resolve(itemValue);
 					}
-				}
+				});
 			});
+			resolve(false);
 		});
-		return false;
-	}	
+	}
 	client.returnInventory = (idPlayer) => {
 		return new Promise((resolve, reject) => {
 			var listMap = new Map();
-        	client.con.query("SELECT * FROM inventory WHERE idplayer=" + idPlayer, (err, rows) => {
-            	if(err) reject(err);
-            	if(rows.length >= 1){
-	            	for(let i = 0; i < rows.length; i++){  
-						listMap.set(client.itemInformation(rows[i].itemid, "name"), rows[i].quantity);
+			client.con.query("SELECT * FROM inventory WHERE idplayer=" + idPlayer, (err, rows) => {
+ 				if(err) reject(err);
+        if(rows.length >= 1){
+	       	for(let i = 0; i < rows.length; i++){  
+						client.itemInformation(rows[i].itemid).then(value => {
+							listMap.set(value.name,rows[i].quantity);
+						});
 					}
-    	            resolve(listMap);					
-            	}else resolve('Inventaire vide...');
-  			});
+					resolve(listMap);					
+        }else resolve('Inventaire vide...');
+  		});
 		});
 	}
 	client.resetInventory = (idPlayer) => {

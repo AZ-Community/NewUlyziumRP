@@ -13,7 +13,7 @@ exports.run = async (client, message, args) => {
 				item = await client.returnInventory(member.user.id);
 				if(typeof item != "string"){	
 					inventoryEmbed.addField("╺─────み─────╸", `Inventaire de: ${member.user.username}`);
-					for(const[name,quantity] of item){
+					for(const[name,quantity] of Object.entries(item)){
 						inventoryEmbed.addField(`${name} - ${quantity}`, "Effet:..");
 					}
 				}else{
@@ -29,8 +29,8 @@ exports.run = async (client, message, args) => {
 		item = await client.returnInventory(message.author.id);
 		if(typeof item != "string"){	
 			inventoryEmbed.addField("╺─────み─────╸", `Votre inventaire`);
-			for(const[name,quantity] of item){
-				inventoryEmbed.addField(`${name}*${quantity}`, "Effet:..");
+			for(const[key,value] of item){
+				inventoryEmbed.addField(key, `└>Quantité: ${value}`);
 			}
 		}else{
 			inventoryEmbed.addField("╺─────み─────╸", item);

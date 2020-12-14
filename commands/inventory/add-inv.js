@@ -1,14 +1,13 @@
 const Discord = require('discord.js');
 
 exports.run = async (client, message, args) => {
-    if(!client.userIsStaff(message.guild, message.author)) {
-        return message.channel.send({embed: {color: "RED", description: `:x: <@${message.author.id}>, cette commande est réservée aux membres du staff.`}});
-    }
+	if(!client.userIsStaff(message.guild, message.author)) return message.channel.send({embed: {color: "RED", description:
+	`:x: <@${message.author.id}>, cette commande est réservée aux membres du staff.`}}); 
 	if(args[0] == null || args[1] == null) return message.channel.send(exports.help.example)
 	if(client.users.cache.get(args[0])) return message.channel.send({embed: {color: "RED", description: `:x: <@${message.author.id}>, Il ne s'agit pas d'une mention!`}});
-	if(client.itemInformation(args[1], "id")){
-        message.react("❌");
-        message.react("✅")
+	if(client.itemInformation(args[1])){
+ 		message.react("❌");
+    message.react("✅")
 		message.awaitReactions(client.filter, { max: 1, time: 60000, errors: ['time'] }).then(collected => {
 			const reaction = collected.first();
 			if (reaction.emoji.name === '✅') {
