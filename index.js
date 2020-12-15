@@ -21,15 +21,14 @@ require('./handler/Module.js')(client);
 require('./handler/Event.js')(client);
 require('./handler/Leveling.js')(client);
 require('./handler/Inventory.js')(client);
-
+require('./handler/GUI.js')(client);
 /**
  * Events Initialisation
  */
 client.on('warn', console.warn);
 client.on('error', console.error);
-
+client.loadItems();
 /**
  * -> Log bot
  */
-//client.login("NTQ2Mjc0NTIwMjA2NjcxODcz.XGfjyg.dIuKMpihSVlr0Pw9UckH0ML3BfQ").catch(console.error);
 client.login(process.env.TOKEN).catch(console.error);

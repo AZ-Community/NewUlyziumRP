@@ -2,10 +2,7 @@ const Discord = require('discord.js');
 const { removeEmojis } = require('../funcs.js');
 
 module.exports = async (client, message) => {
-	client.filter = (reaction, user) => {
-		return ['❌', '✅', '1️⃣', '2️⃣', '3️⃣'].includes(reaction.emoji.name) && user.id === message.author.id;
-	};
-
+	client.filter = (reaction, user) => { return ['❌', '✅', '1️⃣', '2️⃣', '3️⃣'].includes(reaction.emoji.name) && user.id === message.author.id};
     if(message.author.bot || message.author === client.user) return;
     let prefix = client.config.prefix;
 
