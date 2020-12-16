@@ -48,4 +48,42 @@ module.exports = client => {
 		}
 		return Json;
 	}
+	/*Constructor 
+	 *Management of Items
+	 * */
+	client.itemsManagement = class {
+		constructor(){
+			this.addingObject = (typeName, itemName = undefined) => {
+				return new Promise((resolve, reject) => {	
+					if(!itemName){
+						client.con.query(`SELECT * FROM itemLists WHERE type = '${typeName}'`, (err, rows) => {
+							if(err) resolve(client.sendEmbed("Requête non valide", `${err}`, "RED"));
+							if(rows.length >= 1) resolve(client.sendEmbed("Type déjà crée :warning:", "", "YELLOW"));
+							client.con.query(`INSERT INTO itemLists(type, items) VALUES ("${typeName}", '{}');`, (err) => {
+								if(err) resolve(client.sendEmbed("[INSERT] Requête non valide", `${err}`, "RED"));	
+								resolve(client.sendEmbed("Requête validée", "", "GREEN"));
+							});
+						});
+					}else{
+						var nameObj = "";
+						for(var i =1; i < itemName.length; i++) nameObj += (itemName.length-1 == i) ? itemName[i]+ "" :  itemName[i]+" ";
+						var inMyMap = (typeof client.itemListInType(typeName) == 'undefined') ? new Map()  : client.itemListInType(typeName).then((value) => {
+							value.set(typeName+"-"+(Object.keys(value).length+1), client.createItem((Object.keys(value).length+1),nameObj));
+							console.log(JSON.parse("["+client.changeMapToJson(value)+"]"));
+						});
+					}
+				});
+			}
+			this.modifingObject = (typeSpecify) => {
+
+			}
+			this.removingObject = (typeName, itemName = undefined) => {
+
+			}
+		}
+	}
+
+	client.createItem = (idItem, itemName) => {
+		return {id: idItem, name: `${itemName}`, details: {DAMAGE: 0, PROTECTION: 0, CRAFT: false }, craftable: {}, description: "Description basique" }
+	}
 }

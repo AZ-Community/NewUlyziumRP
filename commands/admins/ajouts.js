@@ -6,7 +6,7 @@ exports.run = async (client, message, args) => {
 	const titleEmbed = "Gestion des items";
 	const myEmbed = await client.sendEmbed(
 		titleEmbed,
-		":one: - Ajouter un type. \n:two: - Ajouter un item",
+		"\t:one: - Ajouter un type. \n\t:two: - Ajouter un item",
 		"RED", 
 		"https://mir-s3-cdn-cf.behance.net/project_modules/disp/3ce18030283093.561c24a8eb950.gif"
 	);
@@ -17,8 +17,8 @@ exports.run = async (client, message, args) => {
 	
 
 	client.choiceGUI(message, [
-		[titleEmbed,"Donnez le nom de votre type", "ORANGE", myEmbed.image.url],
-		[titleEmbed,"Donnez le nom de la liste et de l'item !", "ORANGE", myEmbed.image.url]
+		[titleEmbed,"Donnez le nom de votre type", "ORANGE", myEmbed.image.url, "adding"],
+		[titleEmbed,"Donnez le nom de la liste et de l'item !", "ORANGE", myEmbed.image.url, "adding"]
 	]);
 
 
