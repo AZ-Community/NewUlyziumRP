@@ -3,25 +3,24 @@ const Discord = require('discord.js');
 exports.run = async (client, message, args) => {
 	if(!client.userIsStaff(message.guild, message.author))return message.channel.send(
 		{embed: {color: "RED", description: `:x: <@${message.author.id}>, cette commande est réservée aux membres du staff.`}});	
-	const titleEmbed = "Gestion des items";
+	const titleEmbed = "『:gear:』Gestion du Roleplay";
 	const myEmbed = await client.sendEmbed(
 		titleEmbed,
-		"\t:one: - Ajouter un type. \n\t:two: - Ajouter un item",
+		"\t:books: - Ajouter un type/item. \n:heavy_dollar_sign: : - Ajouter un marché dans un salon",
 		"RED", 
-		"https://mir-s3-cdn-cf.behance.net/project_modules/disp/3ce18030283093.561c24a8eb950.gif"
 	);
 	
 	message.channel.send(myEmbed);
 	//Les réactions	
-	message.react("❌"); message.react("1️⃣");  message.react("2️⃣");
+	message.react("❌"); message.react("📚");  message.react("💲");
 	
 
 	client.choiceGUI(message, [
-		[titleEmbed,"Donnez le nom de votre type", "ORANGE", myEmbed.image.url, "adding"],
-		[titleEmbed,"Donnez le nom de la liste et de l'item !", "ORANGE", myEmbed.image.url, "adding"]
+		[titleEmbed,"Donnez le nom de la liste et de l'item " +
+		"\n Exemple [pour créer un item]: `ARMES Gold Knife`" +
+		"\n Exemple [pour créer un type]: `ARMES`" +
+		"\n :warning: **__Vérifiez bien votre message__**!", "ORANGE", "", "addingItem"]
 	]);
-
-
 
 }
 

@@ -16,10 +16,7 @@ module.exports = client => {
 				}
 				items.set(rows[i].type, itemsInType);
 			}
-			itemsInType = undefined;
-			client.itemListInType("CC").then(value => {
-				console.log(JSON.parse("[" +client.changeMapToJson(value)+ "]"));	
-			});
+			itemsInType = undefined;	
 		});
 	}
 	/* @param typeSpecify = String,
@@ -37,13 +34,15 @@ module.exports = client => {
 		for(const [itemKey, itemValue] of Object.entries(obj)){ 
 			if(!inMap) Json += "\n{";
 			inItemSize = 0;
-			for(const [key, value] of Object.entries(itemValue)){
-				if(typeof value === 'object') Json+= `\n"${key}":{${client.changeMapToJson(value, true)}}`;
-				else Json+= `\n"${key}": "${value}"`;
-				if((inItemSize +1) < Object.keys(itemValue).length ) Json += ","; inItemSize++;
+			if(!inMap){
+				for(const [key, value] of Object.entries(itemValue)){
+					if(typeof value === 'object') Json+= `\n"${key}":{${client.changeMapToJson(value, true)}}`;
+					else Json+= `\n"${key}": "${value}"`;
+					if((inItemSize +1) < Object.keys(itemValue).length ) Json += ","; inItemSize++;
+				}
 			}
 			if(!inMap) Json += "}"
-			if(inMap) Json += `"${itemKey}": "${itemValue}"`; if(itemSize + 1 < Object.keys(obj).length) Json +=",";
+			if(inMap) Json += `"${itemKey}": ${itemValue}`; if(itemSize + 1 < Object.keys(obj).length) Json +=",";
 			itemSize++;
 		}
 		return Json;
@@ -60,26 +59,66 @@ module.exports = client => {
 							if(err) resolve(client.sendEmbed("Requête non valide", `${err}`, "RED"));
 							if(rows.length >= 1) resolve(client.sendEmbed("Type déjà crée :warning:", "", "YELLOW"));
 							client.con.query(`INSERT INTO itemLists(type, items) VALUES ("${typeName}", '{}');`, (err) => {
-								if(err) resolve(client.sendEmbed("[INSERT] Requête non valide", `${err}`, "RED"));	
+								if(err) resolve(client.sendEmbed(":x: [INSERT] Requête non valide", `${err}`, "RED"));	
 								resolve(client.sendEmbed("Requête validée", "", "GREEN"));
 							});
 						});
 					}else{
 						var nameObj = "";
-						for(var i =1; i < itemName.length; i++) nameObj += (itemName.length-1 == i) ? itemName[i]+ "" :  itemName[i]+" ";
+						for(var i =1; i < itemName.length; i++) nameObj += (itemName.length-1 == i) ? itemName[i] :  itemName[i]+" ";
 						var inMyMap = (typeof client.itemListInType(typeName) == 'undefined') ? new Map()  : client.itemListInType(typeName).then((value) => {
-							value.set(typeName+"-"+(Object.keys(value).length+1), client.createItem((Object.keys(value).length+1),nameObj));
-							console.log(JSON.parse("["+client.changeMapToJson(value)+"]"));
+							value.set(typeName+"-"+(value.size+1), client.createItem(value.size+1,nameObj));
+							console.log(client.changeMapToJson(value));
+							client.con.query(`UPDATE itemLists SET items = '[${client.changeMapToJson(value)}]' WHERE type= '${typeName}'`, (err) => {
+								if(err) resolve(client.sendEmbed("[UPDATE] Requête invalide.", `${err}`, "RED"));
+								resolve(client.sendEmbed("Requête validée", "", "GREEN"));
+							})
 						});
 					}
 				});
 			}
-			this.modifingObject = (typeSpecify) => {
-
+			this.modifingObject = (args) => {
+				return new Promise((resolve, reject)  => {
+					client.itemListInType(args[0].toUpperCase()).then(async (value) => {
+						for(const [itemKey, itemValue] of value){
+							if(Object(itemKey).localeCompare(args[1].toUpperCase()) == 0){ 
+								switch(args[2].toUpperCase()){
+									case "SETPROTECTION":
+									case "SETDAMAGE":
+										if(!Number.isNaN(Number.parseInt(args[3]))){
+											if(args[2] == "SETPROTECTION") itemValue.details.PROTECTION = args[3];
+											else itemValue.details.DAMAGE = args[3];
+										}
+										break;
+									case "SETDESCRIPTION":
+										var newDesc;
+										for(var i=3; i < args.length; i++) newDesc += (i == args.length) ? args[i] : args[i] + " ";
+										itemValue.description = newDesc;	
+										break;
+									case "SETCRAFTABLE":
+										break;
+									default:
+										resolve(client.sendEmbed("[Les arguments disponibles]", 
+										"setProtection\nsetDamage\nsetDescription\nsetCraftable", "RED"));
+										break;
+								}
+								const newMap = await client.changeMapToJson(value);
+								await client.con.query(`UPDATE itemLists SET items= '[ ${newMap} ]' WHERE type = '${args[0]}'`, (err) => {
+									if(err) resolve(client.sendEmbed("[ERREUR]", `${err}`));
+								});
+								resolve(client.sendEmbed(":white_check_mark: - Modification effectuée avec succès", "", "GREEN"));
+							}
+						}
+						resolve(client.sendEmbed("[Item] Votre item est inexistant", "", "RED"));
+					}).catch(err => {  resolve(client.sendEmbed("[Item] Votre liste est inexistante", "", "RED")) });
+				});
 			}
 			this.removingObject = (typeName, itemName = undefined) => {
+				if(!itemName){
+				}else{
+				}
 
-			}
+			}	
 		}
 	}
 
