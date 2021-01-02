@@ -32,5 +32,5 @@ exports.help = {
 }
 
 exports.conf = {
-    aliases: ["ajt"]
+    aliases: ["ajt", "add"]
 }

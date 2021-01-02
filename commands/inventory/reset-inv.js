@@ -2,21 +2,23 @@ const Discord = require('discord.js');
 
 exports.run = async (client, message, args) => {
     if(!client.userIsStaff(message.guild, message.author)) {
-        return message.channel.send({embed: {color: "RED", description: `:x: <@${message.author.id}>, cette commande est réservée aux membres du staff.`}});
+       return message.channel.send({embed:
+			{color: "RED", description: `:x: <@${message.author.id}>, cette commande est réservée aux membres du staff.`}});
     }
 	if(args[0] == null) return message.channel.send(exports.help.example)
 	if(client.users.cache.get(args[0])){ 
-		var member = message.guild.members.cache.get(message.mentions.users.first().id); 
 		return message.channel.send({embed: {color: "RED", description: `:x: <@${message.author.id}>, Il ne s'agit pas d'une mention!`}});
 	}
-   	message.react("❌");
-    message.react("✅");
+	var member = message.guild.members.cache.get(message.mentions.users.first().id);
+	message.react("❌");
+	message.react("✅");
 	message.awaitReactions(client.filter, { max: 1, time: 60000, errors: ['time'] }).then(collected => {
+		const iManage = new client.itemsManagement();
 		const reaction = collected.first();
 		if (reaction.emoji.name === '✅') {
-			client.resetInventory(member);
+			iManage.resetInventory(member.user.id);
 			return message.channel.send({embed: {color: "GREEN", description: `:white_check_mark: <@${message.author.id}>,` +
-				`L'inventaire est réinitiliasé.`}});
+			`L'inventaire est réinitiliasé.`}});	
 		} else {
 			 return message.channel.send({embed: {color: "RED", description: `:x: <@${message.author.id}>, Vous avez`+ 
 				` annulé la reuqête.`}});

@@ -34,12 +34,10 @@ module.exports = client => {
 		for(const [itemKey, itemValue] of Object.entries(obj)){ 
 			if(!inMap) Json += "\n{";
 			inItemSize = 0;
-			if(!inMap){
-				for(const [key, value] of Object.entries(itemValue)){
-					if(typeof value === 'object') Json+= `\n"${key}":{${client.changeMapToJson(value, true)}}`;
-					else Json+= `\n"${key}": "${value}"`;
-					if((inItemSize +1) < Object.keys(itemValue).length ) Json += ","; inItemSize++;
-				}
+			for(const [key, value] of Object.entries(itemValue)){
+				if(typeof value === 'object') Json+= `\n"${key}":{${client.changeMapToJson(value, true)}}`;
+				else Json+= `\n"${key}": "${value}"`;
+				if((inItemSize +1) < Object.keys(itemValue).length ) Json += ","; inItemSize++;
 			}
 			if(!inMap) Json += "}"
 			if(inMap) Json += `"${itemKey}": ${itemValue}`; if(itemSize + 1 < Object.keys(obj).length) Json +=",";
@@ -96,6 +94,17 @@ module.exports = client => {
 										itemValue.description = newDesc;	
 										break;
 									case "SETCRAFTABLE":
+										const craftMap = new Map();
+										for(var i=3; i < args.length; i++) {
+											if(args[i] != "|" && client.itemInformation(args[i], "id")){
+												if(!isNaN(parseInt(args[i+1]))) craftMap.set(args[i], parseInt(args[i+1]));
+											}
+										}
+										itemValue.details.CRAFTABLE = true;
+										let obj = Array.from(craftMap).reduce((obj, [key,value]) => (
+											Object.assign(obj, {[key]: value})
+										),{});
+										itemValue.craftable = obj;
 										break;
 									default:
 										resolve(client.sendEmbed("[Les arguments disponibles]", 
@@ -110,17 +119,63 @@ module.exports = client => {
 							}
 						}
 						resolve(client.sendEmbed("[Item] Votre item est inexistant", "", "RED"));
-					}).catch(err => {  resolve(client.sendEmbed("[Item] Votre liste est inexistante", "", "RED")) });
+					}).catch(err => {  resolve(client.sendEmbed("Erreur", `${err}`, "RED")) });
 				});
 			}
 			this.removingObject = (typeName, itemName = undefined) => {
 				if(!itemName){
+					client.con.query(`DELETE FROM itemLists WHERE type='${typeName}'`, (err) => {
+						if(err) return err;
+					});
 				}else{
+					const myMap = new Map();
+					client.itemListInType(typeName).then(value => {
+						for(const [itemKey, itemValue] of Object.entries(value)){
+							if(Object(itemKey).localeCompare(itemName) == 1) myMap.set(itemKey, itemValue);
+						}	
+					});
 				}
-
+			}
+			this.giveToPlayerItem = (idPlayer, itemID, quantity) => {
+				return new Promise((resolve, reject) => {
+					client.con.query(`SELECT * FROM inventory WHERE idplayer ='${idPlayer}' AND itemid ='${itemID}'`, (err, rows) => {
+						if(err) reject(err);
+						if(rows.length >= 1){
+							if(rows[0].quantity + quantity == 0){
+								client.con.query(`DELETE FROM inventory WHERE idplayer= '${idPlayer}' AND itemid='${itemID}'`, (err) => { if(err) reject(err)});
+							}else{
+								if(quantity > 0){
+									client.con.query(`UPDATE inventory SET quantity='${(rows[0].quantity + quantity)}' 
+									WHERE idplayer='${idPlayer}' AND itemid='${itemID}'`, (err) => {if(err) reject(err)});		
+								}else{
+									client.con.query(`UPDATE inventory SET quantity='${(rows[0].quantity - quantity)}' 
+									WHERE idplayer='${idPlayer}' AND itemid='${itemID}'`, (err) => { if(err) reject(err)})}	
+							}
+						}else{
+							client.con.query(`INSERT INTO inventory (idplayer, itemid, quantity) 
+							VALUES ('${idPlayer}','${itemID}', '${Math.abs(quantity)}')`, (err) => {			
+								if(err) reject(err);
+							});
+						}
+					});		
+      	});				
+    	}
+			this.resetInventory = (idPlayer) => {
+				return new Promise((reject) => {
+					client.con.query(`DELETE FROM inventory WHERE idplayer=${idPlayer}`, (err) => {
+						if(err) reject(err);
+					});
+				});
 			}	
 		}
 	}
+	client.itemInformation = (itemID) => {
+		for(const [key, value] of items){
+			for(const [itemKey, itemValue] of value){
+				if(Object(itemKey).localeCompare(itemID) == 0) return itemValue.name;
+			}
+		}
+	}	
 
 	client.createItem = (idItem, itemName) => {
 		return {id: idItem, name: `${itemName}`, details: {DAMAGE: 0, PROTECTION: 0, CRAFT: false }, craftable: {}, description: "Description basique" }
