@@ -48,6 +48,8 @@ module.exports = client => {
 						message.channel.send(await iManage.modifingObject(collected.last().content.split(' ')));
 						break;
 					case "removingItem":
+						if(collected.last().content.split(' ').length == 1) message.channel.send(await iManage.removingObject(collected.last().content.split(' ')[0].toUpperCase()));
+						else message.channel.send(await iManage.removingObject(collected.last().content.split(' ')[0].toUpperCase(), collected.last().content.split(' ')));
 						break;
 				}
 		}).catch( (error) => {return message.channel.send(client.sendEmbed("Requête annulé", `Raison: [${error}]`, "RED"))});
