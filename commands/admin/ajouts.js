@@ -19,7 +19,10 @@ exports.run = async (client, message, args) => {
 		[titleEmbed,"Donnez le nom de la liste et de l'item " +
 		"\n Exemple [pour créer un item]: `ARMES Gold Knife`" +
 		"\n Exemple [pour créer un type]: `ARMES`" +
-		"\n :warning: **__Vérifiez bien votre message__**!", "ORANGE", "", "addingItem"]
+		"\n :warning: **__Vérifiez bien votre message__**!", "ORANGE", "", "addingItem"],
+		[titleEmbed,"Ajouter un marché, dans le salon que vous voulez !"+
+		"\n `<Id du salon>`, obtenable à l'aide di mode développeur"
+		, "ORANGE", "", "addingMarket"]
 	]);
 
 }

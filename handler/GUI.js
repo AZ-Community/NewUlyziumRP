@@ -27,8 +27,14 @@ module.exports = client => {
 				if(client.listChoice[index].localeCompare(reaction.emoji.name) == 0){
 					message.reactions.removeAll()
 					let paramAnswer;
-					if(value.length > 1){ message.channel.send(client.sendEmbed(value[index][0], value[index][1], value[index][2])); paramAnswer = value[index][4]; }
-					else{ message.channel.send(client.sendEmbed(value[0][0], value[0][1], value[0][2])); paramAnswer = value[0][4];}
+					if(value.length > 1) {
+						message.channel.send(client.sendEmbed(value[index][0], value[index][1], value[index][2])); 
+						console.log(value[index][4]);
+						paramAnswer = value[index][4];
+					}else{ 
+						message.channel.send(client.sendEmbed(value[0][0], value[0][1], value[0][2])); 
+						paramAnswer = value[0][4];
+					}
 					await client.awaitAnswer(message, message.author.id, paramAnswer);			
 				}
 			}
@@ -39,6 +45,7 @@ module.exports = client => {
 		var filter = m => m.author.id == message.author.id;
 		message.channel.awaitMessages(filter, {max: 1, time: 20000,errors: ['time']}).then(async (collected) => {
 			const iManage = new client.itemsManagement();
+			const markManage = new client.marketManagement();
 				switch(param){
 					case "addingItem":
 						if(collected.last().content.split(' ').length == 1) message.channel.send(await iManage.addingObject(collected.last().content.split(' ')[0].toUpperCase()));
@@ -50,6 +57,9 @@ module.exports = client => {
 					case "removingItem":
 						if(collected.last().content.split(' ').length == 1) message.channel.send(await iManage.removingObject(collected.last().content.split(' ')[0].toUpperCase()));
 						else message.channel.send(await iManage.removingObject(collected.last().content.split(' ')[0].toUpperCase(), collected.last().content.split(' ')));
+						break;
+					case "addingMarket":
+						message.channel.send(await markManage.createMarket(collected.last().content));
 						break;
 				}
 		}).catch( (error) => {return message.channel.send(client.sendEmbed("Requête annulé", `Raison: [${error}]`, "RED"))});

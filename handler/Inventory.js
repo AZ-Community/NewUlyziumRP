@@ -58,6 +58,7 @@ module.exports = client => {
 							if(rows.length >= 1) resolve(client.sendEmbed("Type déjà crée :warning:", "", "YELLOW"));
 							client.con.query(`INSERT INTO itemLists(type, items) VALUES ("${typeName}", '{}');`, (err) => {
 								if(err) resolve(client.sendEmbed(":x: [INSERT] Requête non valide", `${err}`, "RED"));	
+								client.loadItems();
 								resolve(client.sendEmbed("Requête validée", "", "GREEN"));
 							});
 						});
@@ -66,9 +67,10 @@ module.exports = client => {
 						for(var i =1; i < itemName.length; i++) nameObj += (itemName.length-1 == i) ? itemName[i] :  itemName[i]+" ";
 						var inMyMap = (typeof client.itemListInType(typeName) == 'undefined') ? new Map()  : client.itemListInType(typeName).then((value) => {
 							value.set(typeName+"-"+(value.size+1), client.createItem(value.size+1,nameObj));
-							console.log(client.changeMapToJson(value));
+							console.log("[LOG] " + client.changeMapToJson(value));
 							client.con.query(`UPDATE itemLists SET items = '[${client.changeMapToJson(value)}]' WHERE type= '${typeName}'`, (err) => {
 								if(err) resolve(client.sendEmbed("[UPDATE] Requête invalide.", `${err}`, "RED"));
+								client.loadItems();
 								resolve(client.sendEmbed("Requête validée", "", "GREEN"));
 							})
 						});
@@ -122,19 +124,29 @@ module.exports = client => {
 					}).catch(err => {  resolve(client.sendEmbed("Erreur", `${err}`, "RED")) });
 				});
 			}
-			this.removingObject = (typeName, itemName = undefined) => {
-				if(!itemName){
-					client.con.query(`DELETE FROM itemLists WHERE type='${typeName}'`, (err) => {
-						if(err) return err;
-					});
-				}else{
-					const myMap = new Map();
-					client.itemListInType(typeName).then(value => {
-						for(const [itemKey, itemValue] of Object.entries(value)){
-							if(Object(itemKey).localeCompare(itemName) == 1) myMap.set(itemKey, itemValue);
-						}	
-					});
-				}
+			this.removingObject =(typeName, itemName = undefined) => {
+				return new Promise((resolve, reject) => {
+					if(!itemName){
+						client.con.query(`DELETE FROM itemLists WHERE type='${typeName}'`, (err) => {
+							if(err) resolve(client.sendEmbed(":x: - Erreur ", `${err}`, "RED"));
+							client.loadItems();
+							resolve(client.sendEmbed(":white_check_mark: - Suppression  effectuée avec succès", "","GREEN"));
+						});
+					}else{
+						const myMap = new Map();
+						client.itemListInType(typeName).then(async value => {
+							for(const [itemKey, itemValue] of Object.entries(value)){
+								if(Object(itemKey).localeCompare(itemName) == 1) myMap.set(itemKey, itemValue);
+							}
+							const newMap = await client.changeMapToJson(myMap);
+							await client.con.query(`UPDATE itemLists SET items= '[ ${newMap} ]' WHERE type = '${typeName}'`, (err) => {
+								if(err) resolve(client.sendEmbed("[ERREUR]", `${err}`, 'RED'));
+								client.loadItems();
+								resolve(client.sendEmbed(":white_check_mark: - Suppresion  effectuée avec succès", "", "GREEN"));
+							});
+						});
+					}
+				});
 			}
 			this.giveToPlayerItem = (idPlayer, itemID, quantity) => {
 				return new Promise((resolve, reject) => {
@@ -171,9 +183,7 @@ module.exports = client => {
 	}
 	client.itemInformation = (itemID) => {
 		for(const [key, value] of items){
-			for(const [itemKey, itemValue] of value){
-				if(Object(itemKey).localeCompare(itemID) == 0) return itemValue.name;
-			}
+			for(const [itemKey, itemValue] of value) if(Object(itemKey).localeCompare(itemID) == 0) return itemValue.name;
 		}
 	}	
 
