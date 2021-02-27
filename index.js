@@ -2,7 +2,7 @@
  * -> Requires
  */
 const Discord = require('discord.js');
-const { config } = require('dotenv');
+const {config} = require('dotenv');
 const UlyziumBot = require('./handler/ClientBuilder.js');
 
 /**
@@ -31,7 +31,6 @@ require('./handler/Market.js')(client);
 client.on('warn', console.warn);
 client.on('error', console.error);
 client.loadItems();
-
 /**
  * -> Log bot
  */
