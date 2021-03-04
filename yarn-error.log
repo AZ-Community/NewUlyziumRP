@@ -1,0 +1,62 @@
+Arguments: 
+  /usr/bin/node /usr/share/yarn/bin/yarn.js add node-canvas
+
+PATH: 
+  /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games
+
+Yarn version: 
+  1.22.5
+
+Node version: 
+  12.20.2
+
+Platform: 
+  linux arm
+
+Trace: 
+  Error: https://registry.yarnpkg.com/node-canvas: Not found
+      at Request.params.callback [as _callback] (/usr/share/yarn/lib/cli.js:66988:18)
+      at Request.self.callback (/usr/share/yarn/lib/cli.js:140749:22)
+      at Request.emit (events.js:314:20)
+      at Request.<anonymous> (/usr/share/yarn/lib/cli.js:141721:10)
+      at Request.emit (events.js:314:20)
+      at IncomingMessage.<anonymous> (/usr/share/yarn/lib/cli.js:141643:12)
+      at Object.onceWrapper (events.js:420:28)
+      at IncomingMessage.emit (events.js:326:22)
+      at endReadableNT (_stream_readable.js:1241:12)
+      at processTicksAndRejections (internal/process/task_queues.js:84:21)
+
+npm manifest: 
+  {
+    "name": "newulyziumrp",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "start": "node ./index.js"
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/AZ-Community/NewUlyziumRP.git"
+    },
+    "keywords": [],
+    "author": "AzureCommunity",
+    "license": "ISC",
+    "bugs": {
+      "url": "https://github.com/AZ-Community/NewUlyziumRP/issues"
+    },
+    "homepage": "https://github.com/AZ-Community/NewUlyziumRP#readme",
+    "dependencies": {
+      "@mapbox/node-pre-gyp": "^1.0.0",
+      "discord.js": "^12.4.1",
+      "dotenv": "^8.2.0",
+      "mysql": "^2.18.1"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile

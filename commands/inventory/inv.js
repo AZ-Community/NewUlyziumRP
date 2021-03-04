@@ -4,9 +4,9 @@ exports.run = async (client, message, args) => {
 	const iManage = new client.itemsManagement();
 	var inventory = "";
 	var inventoryEmbed = new Discord.MessageEmbed()
-	.setTitle("`S a c | 🏵️ `")
-	.setThumbnail('https://media.discordapp.net/attachments/743582758554566659/763443002080624680/hira-bilal-bag-removebg-preview.png')
-	.setColor('GREEN');
+		.setTitle("`S a c | 🏵️ `")
+		.setThumbnail('https://media.discordapp.net/attachments/743582758554566659/763443002080624680/hira-bilal-bag-removebg-preview.png')
+		.setColor('GREEN');
 	var member = message.author.id;
 	if(args[0] && client.userIsStaff(message.guild, message.author)) member = message.guild.members.cache.get(message.mentions.users.first().id).user.id;
 	inventoryEmbed.addField("╺─────み─────╸", `Inventaire de <@${member}>`);
@@ -17,8 +17,9 @@ exports.run = async (client, message, args) => {
 			inventoryEmbed.addField(inventory, "Page: 1");  
 		}
 		inventoryEmbed.addField("╺─────み─────╸", myMoney);
-		message.channel.send(inventoryEmbed);
 	});		
+
+	message.channel.send(inventoryEmbed);
 }
 
 exports.help = {

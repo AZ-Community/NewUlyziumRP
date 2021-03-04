@@ -22,7 +22,6 @@ module.exports = client => {
 	/*
 	 *TRANSFORMER NOTRE SYSTEME EN JSON
 	 */
-
 	client.changeMapToJson = (map, inMapOfMap = false) => {
 		let itemSize = 0; let inItemSize = 0;let Json = "{"; //Initialize var
 		let obj = (!inMapOfMap) ? Array.from(map).reduce((obj, [key, value]) => ( Object.assign(obj, { [key]: value }) ), {}) : map;		
@@ -32,7 +31,6 @@ module.exports = client => {
 				if(typeof value === 'object'){ // Si l'objet comprend aussi un dictionnaire
 					Json += `"${key}": ${client.changeMapToJson(value, true)}`
 				}else{
-					console.log(Object.entries(itemValue));
 					if(Object.keys(itemValue).indexOf(key) != -1) Json += `"${key}": "${value}"`;	
 				}
 				if(inItemSize + 1 < Object.keys(itemValue).length) Json +=",";inItemSize++;
@@ -52,6 +50,7 @@ module.exports = client => {
 		Json+= "}"
 		return Json;
 	}	
+	
 	/* @param typeSpecify = String,
 	 	 function to give items of a type;*/
 	client.itemListInType = (typeSpecify) => {
@@ -179,15 +178,16 @@ module.exports = client => {
 					client.con.query(`SELECT * FROM inventory WHERE idplayer ='${idPlayer}' AND itemid ='${itemID}'`, (err, rows) => {
 						if(err) reject(err);
 						if(rows.length >= 1){
-							if(parseInt(rows[0].quantity) + quantity == 0){
+							if(parseInt(rows[0].quantity) + quantity < 0){
 								client.con.query(`DELETE FROM inventory WHERE idplayer= '${idPlayer}' AND itemid='${itemID}'`, (err) => { if(err) reject(err)});
 							}else{
-								if(quantity > 0){
-									client.con.query(`UPDATE inventory SET quantity='${parseInt(rows[0].quantity) + parseInt(quantity)}' 
+								if(Math.sign(quantity) == -1){
+									client.con.query(`UPDATE inventory SET quantity='${parseInt(rows[0].quantity) +  quantity}' 
 									WHERE idplayer='${idPlayer}' AND itemid='${itemID}'`, (err) => {if(err) reject(err)});		
-								}else{
-									client.con.query(`UPDATE inventory SET quantity='${(rows[0].quantity - quantity)}' 
-									WHERE idplayer='${idPlayer}' AND itemid='${itemID}'`, (err) => { if(err) reject(err)})}	
+								}else if(Math.sign(quantity) == 1){
+									client.con.query(`UPDATE inventory SET quantity='${parseInt(rows[0].quantity) + parseInt(quantity)}' 
+									WHERE idplayer='${idPlayer}' AND itemid='${itemID}'`, (err) => { if(err) reject(err)})
+								};	
 							}
 						}else{
 							client.con.query(`INSERT INTO inventory (idplayer, itemid, quantity) 
@@ -208,59 +208,30 @@ module.exports = client => {
 			}	
 		}
 	}
-		/*
-		 *Gérer les loot
-		 *
-		 */	
-	client.lootManagement = class {
-		constructor(){				
-			this.addingLoot = (args) => {
-				return new Promise((resolve, reject) => {
-					//On vérifie qu'on a au moins le monstre
-					var nameMonster = "";
-					for(var i = 0; i < args.length; i++) nameMonster = (i+1 == args.length) ? nameMonster += args[i] + " " : nameMonster +=  args[i];	
-					client.con.query(`SELECT * FROM monsterLoot WHERE nameMonster='$'{nameMonster}'`, (err, rows) => {
-						if(rows){
-							resolve(client.sendEmbed(`:x:, Monstre déjà existant`, "", "RED"));	
-						}else{
-							client.con.query(`INSERT INTO monsterLoot(nameMonster, lootItems) VALUES ('${nameMonster}', '[]')`);
-							resolve(client.sendEmbed(`:white_check_mark: - Ajout des loots basiques pour le monstre \`${nameMonster}\``, "", "GREEN"));	
-						}
-					})	
-				});
-			}
-			//<Loot1;Probabilité;LootMin;LootMax>|<Loot2;etc...>|Monstre du Chaos...
-			this.modifingLoot = (args) => {
-				return new Promise((resolve, reject) => {
-					var argsSeparate = args.split('|'); var allLoots = []; var itemName = "";	
 
-					client.con.query(`SELECT * FROM monsterLoot WHERE nameMonster='${argsSeparate[args.length-1]}'`, async(err, rows) => {
-						if (err && !rows) resolve(client.sendEmbed(`:x: Erreur `, `venant de la requête \`SELECT\` pour les loots \n ${err}!`, "RED"));
-						//On regarde le nombre de loots
-						for(var i =0; i < argsSeparate.length-1; i++){
-							var prob = argsSeparate[i].split(";");
-							//On regarde les probabilités
-							if(prob.length < 3) resolve(client.sendEmbed(`:x: - Annulation - Respecter la syntaxe`,
-							`<Loot1;Probabilité;LootMin;LootMax>|<Loot2;etc...>|Monstre du Chaos...`, "RED"));
-							allLoots.push(client.createLoot(argsSeparate[argsSeparate.length-1], prob[1], prob[2], prob[3]));
-						}
-						var json = await client.changeMapToJson(allLoots, true);
-						resolve(client.sendEmbed(`:white_check_mark: - Modification`, `Les loots du monstre \`${argsSeparate[(argsSeparate.length-1)]}\``, "GREEN"));
-					});	
-				});
-			}
-			this.removingLoot = (args) => {
-
+	client.itemInformation = (itemID) => {
+		for(const [key, value] of items){
+			for(const [itemKey, itemValue] of value){
+				if(Object(itemKey).localeCompare(itemID) == 0) return itemValue.name;
 			}
 		}
 	}
-	client.itemInformation = (itemID) => {
+	
+	client.researchItem= (word) => {	
+		var queryFound = []
 		for(const [key, value] of items){
-			for(const [itemKey, itemValue] of value) if(Object(itemKey).localeCompare(itemID) == 0) return itemValue.name;
+			for(const [itemKey, itemValue] of value){
+				var name = itemValue.name.toLowerCase();
+				if(name.includes(word.toLowerCase())){
+					queryFound.push("Id :" + key+"-"+itemValue.id + " - Nom :" + itemValue.name);
+				}
+			}
 		}
-	}	
-	client.createLoot = (itemID, prob, lootMin, lootMax) => {
-		return {'item': itemID, 'prob':prob, 'qtmin': lootMin, 'qtmax': lootMax};
+		return queryFound;
+	}
+
+	client.createLoot = (itemID, probability, lootMin, lootMax) => {
+		return {item: itemID, prob:probability, qtmin: lootMin, qtmax: lootMax};
 	}
 	client.createItem = (idItem, itemName) => {
 		return {id: idItem, name: `${itemName}`, details: {DAMAGE: 0, PROTECTION: 0, CRAFT: false }, craftable: {}, description: "Description basique"}

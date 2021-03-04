@@ -19,6 +19,8 @@
   },
   "homepage": "https://github.com/AZ-Community/NewUlyziumRP#readme",
   "dependencies": {
+    "@mapbox/node-pre-gyp": "^1.0.0",
+    "canvas": "^2.7.0",
     "discord.js": "^12.4.1",
     "dotenv": "^8.2.0",
     "mysql": "^2.18.1"

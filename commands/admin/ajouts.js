@@ -6,7 +6,7 @@ exports.run = async (client, message, args) => {
 	const titleEmbed = "『:gear:』Gestion du Roleplay";
 	const myEmbed = await client.sendEmbed(
 		titleEmbed,
-		"\t:books: - Ajouter un type/item. \n:heavy_dollar_sign: : - Ajouter un marché dans un salon\n? Rajouter des looots",
+		"\t:books: - Ajouter un type/item. \n:heavy_dollar_sign: : - Ajouter un marché dans un salon\n? Rajouter des looots\n ",
 		"RED", 
 	);
 	
@@ -27,7 +27,12 @@ exports.run = async (client, message, args) => {
 
 		[titleEmbed,"Ajouter un monstre pour des loots !" +
 		"\nExemple: [Crée les loots d'un monstre] `Nom du monstre`",
-		"ORANGE","", "addingLoot"]
+		"ORANGE","", "addingLoot"],
+
+		[titleEmbed,"Ajouts les rôles pour les lieux" +
+		"\nIl rajoute automatiquement les rôles`",
+		"ORANGE","", "addingRank"]
+
 	]);
 
 }

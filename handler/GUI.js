@@ -79,6 +79,7 @@ module.exports = client => {
 						message.channel.send(await lootManager.modifingLoot(collected.last().content));
 						break;
 					case "removingLoot":
+						message.channel.send(await lootManager.removingLoot(collected.last().content));
 						break;
 				}
 		}).catch( (error) => {return message.channel.send(client.sendEmbed("Requête annulé", `Raison: [${error}]`, "RED"))});

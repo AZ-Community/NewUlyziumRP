@@ -22,14 +22,17 @@ exports.run = async (client, message, args) => {
 		"\n `TYPE itemID setDescription <votre phrase>` => Pour émettre une description à un item" +
 		"\n `TYPE itemID setCraftable <id d'un item> <quantité> | <id d'un autre item> quantité> | etc...` => Pour émettre le schéma du craft." + 
 		"\n :warning: **__Vérifiez bien votre message__**!", "ORANGE", "", "modifingItem"],
+
 		[titleEmbed, "AIDE"+
 		"\n `idChannel addBuy price TYPE;itemID`"+
 		"\n `idChannel modifBuy price TYPE;itemID`" +
 		"\n `idChannel removeBuy TYPE;itemID`"+
 		"\n :warning: **__Vérifiez bien la syntaxe !__**", "ORANGE", "", "modifingMarket"],
+
 		[titleEmbed,"AIDE" +
-		"\n `<Nom du monstre> <Loot 1;Probabilité,Prob2,Prob3> <Loot2;etc...>`"+
+		"\n `<Nom du monstre>|<Loot 1;Probabilité,Prob2,Prob3> <Loot2;etc...>`"+
 		"\n :warning: **__Vérifiez bien la syntaxe !__**", "ORANGE", "", "modifingLoot"]
+
 	]);
 
 
