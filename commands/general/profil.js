@@ -7,7 +7,9 @@ exports.run = async (client, message, args) => {
 		var member = message.guild.members.cache.get(message.author.id); 
 		const canvas = client.canvas.createCanvas(487, 584);
 		const ctx = canvas.getContext('2d');
-		//on met en place le fond écran				
+
+		ctx.imageSmoothingEnabled = false;
+		//Le fond écran
 		const background = await client.canvas.loadImage('./images/wallpaper.png'); 
 		ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 		//On ajoute la tête dégueulasse 

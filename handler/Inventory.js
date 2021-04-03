@@ -8,7 +8,7 @@ module.exports = client => {
 		client.con.query("SELECT * FROM itemLists", async (err, rows) => {
 			for(var i = 0; i < rows.length; i++){
 				itemsInType = new Map(); //La liste des items rangés dans sa classe.
-				itemListType = JSON.parse(rows[i].items); 
+				itemListType = JSON.parse(rows[i].items); 			
 				if(Object.keys(itemListType).length > 0){
 					itemListType.forEach( item => {
 						itemsInType.set(rows[i].type+"-"+item.id, item);
@@ -100,6 +100,12 @@ module.exports = client => {
 					}
 				});
 			};
+			this.modifingEmote = (args) => {
+				return new Promise((resolve, reject) => {
+			
+				});
+			}
+
 			this.modifingObject = (args) => {
 				return new Promise((resolve, reject)  => {
 					client.itemListInType(args[0].toUpperCase()).then((value) => {
@@ -124,7 +130,6 @@ module.exports = client => {
 												if(!isNaN(parseInt(args[i+1]))) craftMap.set(args[i], parseInt(args[i+1]));
 											}
 										}
-										console.log(craftMap);
 										itemValue.details.CRAFT = true;
 										let obj = Array.from(craftMap).reduce((obj, [key,value]) => (
 											Object.assign(obj, {[key]: value})
@@ -143,6 +148,12 @@ module.exports = client => {
 								});
 								resolve(client.sendEmbed(":white_check_mark: - Modification effectuée avec succès", "", "GREEN"));
 							}
+						}
+						if(args[1].toUpperCase() == "SETEMOTE" && args[2]){ 
+							client.con.query(`UPDATE itemLists SET itemLists='${args[2]}' WHERE type ='${args[0]}'`, (err, rows) => {
+								if(err) resolve(); 	
+								resolve(client.sendEmbed(":white_check_mark: - Modification", `L'emote du type ${args[0]} a été effectué !`, "GREEN"));
+							});
 						}
 						resolve(client.sendEmbed("[Item] Votre item est inexistant", "", "RED"));
 					}).catch(err => {  resolve(client.sendEmbed("Erreur", `${err}`, "RED")) });
@@ -212,7 +223,7 @@ module.exports = client => {
 	client.itemInformation = (itemID) => {
 		for(const [key, value] of items){
 			for(const [itemKey, itemValue] of value){
-				if(Object(itemKey).localeCompare(itemID) == 0) return itemValue.name;
+				if(Object(itemKey).localeCompare(itemID) == 0) return itemValue;
 			}
 		}
 	}
@@ -228,11 +239,18 @@ module.exports = client => {
 			}
 		}
 		return queryFound;
-	}
+	};
+
+	client.returnType = () => {
+		var types = [];
+		for (const key of items.keys())
+				types.push(key);
+		return types;
+	};
 
 	client.createLoot = (itemID, probability, lootMin, lootMax) => {
 		return {item: itemID, prob:probability, qtmin: lootMin, qtmax: lootMax};
-	}
+	};
 	client.createItem = (idItem, itemName) => {
 		return {id: idItem, name: `${itemName}`, details: {DAMAGE: 0, PROTECTION: 0, CRAFT: false }, craftable: {}, description: "Description basique"}
 	}

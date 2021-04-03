@@ -20,7 +20,7 @@ exports.run = async (client, message, args) => {
 				iManage.giveToPlayerItem(member.user.id, args[1], -Math.abs(quantity));
 		    	return message.channel.send({embed: 
 						{color: "GREEN", 
-						description: `:white_check_mark: <@${message.author.id}>, L'item **${client.itemInformation(args[1], "name")}**  L'item a été retiré!`}});
+						description: `:white_check_mark: <@${message.author.id}>, L'item **${client.itemInformation(args[1]).name}**  L'item a été retiré!`}});
 			} else {
 				 return message.channel.send({embed: {color: "RED", description: `:x: <@${message.author.id}>, Vous avez annulé la requête.`}});
 			}

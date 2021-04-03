@@ -15,7 +15,7 @@ exports.run = async (client, message, args) => {
 			if (reaction.emoji.name === "✅") {
 				let iManage = new client.itemsManagement();
 				iManage.giveToPlayerItem(member.user.id, args[1],( args[2] || 1));	
-				let itemName =  client.itemInformation(args[1], "name");
+				let itemName =  client.itemInformation(args[1]).name;
 				return message.channel.send({embed: 
 				{color: "GREEN",  description: `:white_check_mark: <@${message.author.id}>,
 								L'item **${itemName}**  a bien été envoyé à l'utilisateur!`}});

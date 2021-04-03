@@ -1,15 +1,12 @@
 const Discord = require('discord.js');
 
 module.exports = client => {
-	
-	client.listChoice = ["📚", '💲', '🏹', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '0️⃣'];
-
-
 	/*@param titleEmbed, message, color, urlImage -> String
 	 *Return new Embed*/
 	client.sendEmbed = (titleEmbed, message, color, urlImage) => {
 		const embedGUI = new Discord.MessageEmbed({
-			color: color, title: "╭┈┈┈┈┈┈┈‬┈┈┈‬‬┈┈┈‬┈┈‬\n┊ ✧ ೃ༄ ┊ "+titleEmbed, 
+			color: color, 
+			title: "╭┈┈┈┈┈┈┈‬┈┈┈‬‬┈┈┈‬┈┈‬\n┊ ✧ ೃ༄ ┊ "+ titleEmbed, 
 			description: message, 
 			footer: { text:  "[ 💛 ] ΛZUЯΞ | Community ©" }
 		});
@@ -20,11 +17,12 @@ module.exports = client => {
 	/* @param message - MessageDiscord | value - List
 	 * reactChain for Discord*/
 
-	client.choiceGUI = (message, value = []) => {
+	client.choiceGUI = (message, value = [], listChoice = ['📚', '💲', '🏹'] ) => {
 		message.awaitReactions(client.filter, { max: 1, time: 60000, errors: ['time'] }).then( async(collected) => {
 			const reaction = collected.first();
-			for(var index = 0; index < client.listChoice.length; index++){
-				if(client.listChoice[index].localeCompare(reaction.emoji.name) == 0){
+			for(var index = 0; index < listChoice.length; index++){
+				if(reaction.emoji.name == "❌") return message.channel.send(client.sendEmbed("Requête annulé", "", ""));
+				if(listChoice[index].localeCompare(reaction.emoji.name) == 0){
 					message.reactions.removeAll()
 					let paramAnswer;
 					message.channel.send(client.sendEmbed(value[index][0], value[index][1], value[index][2])); 
@@ -66,6 +64,7 @@ module.exports = client => {
 						message.channel.send(await markManage.createMarket(collected.last().content));
 						break;
 					case "modifingMarket":
+						message.channel.send(await markManage.modifyMarket(collected.last().content.split(' ')));
 						break;
 					case "removingMarket":
 						break;

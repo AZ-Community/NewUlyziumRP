@@ -11,15 +11,18 @@ exports.run = async (client, message, args) => {
 	if(args[0] && client.userIsStaff(message.guild, message.author)) member = message.guild.members.cache.get(message.mentions.users.first().id).user.id;
 	inventoryEmbed.addField("╺─────み─────╸", `Inventaire de <@${member}>`);
 	const myMoney = await client.returnMoney(member);
+
 	client.con.query(`SELECT * FROM inventory WHERE idplayer = ${(member)}`, (err, rows) => { 
 		if(rows.length != 0){
-			for(var i=0; i < rows.length; i++) inventory += `Nom :**${client.itemInformation(rows[i].itemid)}** | Quantité **${rows[i].quantity}** \n`;	
+			for(var i=0; i < rows.length; i++){
+				inventory += `Nom :**${client.itemInformation(rows[i].itemid).name}** | Quantité **${rows[i].quantity}** \n`;	
+			}
 			inventoryEmbed.addField(inventory, "Page: 1");  
 		}
 		inventoryEmbed.addField("╺─────み─────╸", myMoney);
+		message.channel.send(inventoryEmbed);
 	});		
 
-	message.channel.send(inventoryEmbed);
 }
 
 exports.help = {

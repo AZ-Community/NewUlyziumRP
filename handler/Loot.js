@@ -43,7 +43,7 @@ module.exports = client => {
 							allLoots.set(allLoots.size+1,client.createLoot(prob[0], prob[1], prob[2],prob[3]));							
 						}
 						var json = await client.changeMapToJson(allLoots, false);
-						client.con.query(`UPDATE monsterLoot SET lootItems='${json}' WHERE nameMonster='${argsSeparate[argsSeparate.length-1]}';`, (err) => {
+						client.con.query(`UPDATE monsterLoot SET lootItems='[ ${json} ]' WHERE nameMonster='${argsSeparate[argsSeparate.length-1]}';`, (err) => {
 							resolve(client.sendEmbed(`:white_check_mark: - Modification`, 
 							`Les loots du monstre \`${argsSeparate[(argsSeparate.length-1)]}\` ont bien été modifié`, 
 							"GREEN"));

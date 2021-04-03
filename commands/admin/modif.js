@@ -21,6 +21,7 @@ exports.run = async (client, message, args) => {
 		"\n `TYPE itemID setProtection 10` => Pour pouvoir changer les points de protection " +
 		"\n `TYPE itemID setDescription <votre phrase>` => Pour émettre une description à un item" +
 		"\n `TYPE itemID setCraftable <id d'un item> <quantité> | <id d'un autre item> quantité> | etc...` => Pour émettre le schéma du craft." + 
+		"\n `TYPE setEmote <Votre emoji>`. " +
 		"\n :warning: **__Vérifiez bien votre message__**!", "ORANGE", "", "modifingItem"],
 
 		[titleEmbed, "AIDE"+
