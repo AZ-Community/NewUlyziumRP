@@ -1,7 +1,6 @@
 const Discord = require('discord.js');
 
 exports.run = async (client, message, args) => {
-	const iManage = new client.itemsManagement();
 	var inventory = "";
 	var inventoryEmbed = new Discord.MessageEmbed()
 		.setTitle("`S a c | 🏵️ `")

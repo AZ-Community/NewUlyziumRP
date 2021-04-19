@@ -38,47 +38,44 @@ module.exports = client => {
 	client.awaitAnswer = (message, author, param) => {
 		var filter = m => m.author.id == message.author.id;
 		message.channel.awaitMessages(filter, {max: 1, time: 20000,errors: ['time']}).then(async (collected) => {
-			const iManage = new client.itemsManagement();
-			const lootManager = new client.lootManagement();
-			const markManage = new client.marketManagement();
 				switch(param){
-
 							/*
 							 *Gestion des items;
 							 */
 					case "addingItem":
-						if(collected.last().content.split(' ').length == 1) message.channel.send(await iManage.addingObject(collected.last().content.split(' ')[0].toUpperCase()));
-						else message.channel.send(await iManage.addingObject(collected.last().content.split(' ')[0].toUpperCase(), collected.last().content.split(' ')));
+						if(collected.last().content.split(' ').length == 1) message.channel.send(await client.iManage.addingObject(collected.last().content.split(' ')[0].toUpperCase()));
+						else message.channel.send(await client.iManage.addingObject(collected.last().content.split(' ')[0].toUpperCase(), collected.last().content.split(' ')));
 						break;
 					case "modifingItem":	
-						message.channel.send(await iManage.modifingObject(collected.last().content.split(' ')));
+						message.channel.send(await client.iManage.modifingObject(collected.last().content.split(' ')));
 						break;
 					case "removingItem":
-						if(collected.last().content.split(' ').length == 1) message.channel.send(await iManage.removingObject(collected.last().content.split(' ')[0].toUpperCase()));
-						else message.channel.send(await iManage.removingObject(collected.last().content.split(' ')[0].toUpperCase(), collected.last().content.split(' ')[1]));
+						if(collected.last().content.split(' ').length == 1) message.channel.send(await client.iManage.removingObject(collected.last().content.split(' ')[0].toUpperCase()));
+						else message.channel.send(await client.iManage.removingObject(collected.last().content.split(' ')[0].toUpperCase(), collected.last().content.split(' ')[1]));
 						break;
 						/*
 						 *Gestion du marché
 						 */
 					case "addingMarket":
-						message.channel.send(await markManage.createMarket(collected.last().content));
+						message.channel.send(await client.markManage.createMarket(collected.last().content));
 						break;
 					case "modifingMarket":
-						message.channel.send(await markManage.modifyMarket(collected.last().content.split(' ')));
+						message.channel.send(await client.markManage.modifyMarket(collected.last().content.split(' ')));
 						break;
 					case "removingMarket":
+						message.channel.send(await client.markManage.removeMarket(collected.last().content.split(' ')[0]));
 						break;
 						/*
 						 *Gestion du Loot
 						 */
 					case "addingLoot":
-						message.channel.send(await lootManager.addingLoot(collected.last().content));
+						message.channel.send(await client.lootManager.addingLoot(collected.last().content));
 						break;
 					case "modifingLoot":
-						message.channel.send(await lootManager.modifingLoot(collected.last().content));
+						message.channel.send(await client.lootManager.modifingLoot(collected.last().content));
 						break;
 					case "removingLoot":
-						message.channel.send(await lootManager.removingLoot(collected.last().content));
+						message.channel.send(await client.lootManager.removingLoot(collected.last().content));
 						break;
 				}
 		}).catch( (error) => {return message.channel.send(client.sendEmbed("Requête annulé", `Raison: [${error}]`, "RED"))});

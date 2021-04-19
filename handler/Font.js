@@ -11,4 +11,9 @@ module.exports = (client) => {
 		} while ( ctx.measureText(text).width > 150 );
 		return ctx.font;
 	};
+	client.expBar = () => {
+		const canvas = client.canvas.createCanvas(200, 90);
+		const ctx = canvas.getContext('2d');
+
+	}
 }

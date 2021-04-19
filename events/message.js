@@ -3,10 +3,11 @@ const { removeEmojis } = require('../funcs.js');
 
 module.exports = async (client, message) => {
 	client.filter = (reaction, user) => { return ['❌', '✅', '📚', '💲', '🏹', "🍖", "⚔️", "🕸️"].includes(reaction.emoji.name) && user.id === message.author.id};
+
     if(message.author.bot || message.author === client.user) return;
     let prefix = client.config.prefix;
 
-    if(message.content.startsWith(prefix)) {
+    if(message.content.startsWith(prefix)) {	
         let args = message.content.slice(prefix.length).trim().split(/ +/g);
         let cmd = args.shift().toLowerCase();
         let sender = message.author;

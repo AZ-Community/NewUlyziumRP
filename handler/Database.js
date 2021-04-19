@@ -29,6 +29,7 @@ module.exports = client => {
         CREATE TABLE IF NOT EXISTS channelXPBan( idServer VARCHAR(31), idChannel VARCHAR(30), PRIMARY KEY(idServer, idChannel) );
         CREATE TABLE IF NOT EXISTS progress(idplayer VARCHAR(25), pgrplayers INT DEFAULT 0,dialog INT DEFAULT 0, pnj VARCHAR(10));
         CREATE TABLE IF NOT EXISTS itemLists(type VARCHAR(25) UNIQUE, items TEXT DEFAULT NULL, emoteTypes TEXT DEFAULT NULL);
+				CREATE TABLE IF NOT EXISTS confirm(idPlayer VARCHAR(25) UNIQUE, action TEXT)
         `, err => { if(err) throw err; }
     );
 

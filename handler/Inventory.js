@@ -20,7 +20,9 @@ module.exports = client => {
 		});
 	}
 	/*
-	 *TRANSFORMER NOTRE SYSTEME EN JSON
+	 * TRANSFORMER NOTRE SYSTEME EN JSON
+	 * @param map = Object/MAP
+	 * @param inMapOfMap = (default: false)
 	 */
 	client.changeMapToJson = (map, inMapOfMap = false) => {
 		let itemSize = 0; let inItemSize = 0;let Json = "{"; //Initialize var
@@ -56,15 +58,21 @@ module.exports = client => {
 	client.itemListInType = (typeSpecify) => {
 		return new Promise((resolve, reject) => { items.forEach((value, key) => { if(key.localeCompare(typeSpecify) == 0) resolve(value)})});
 	}
-	
-	/*Constructor 
-	 *Management of Items
-	 * */
+	/*
+	*  @param args = List :
+	*	 AddObject = <TYPE> [item Name]
+	*  ModifObject:
+	*  -> TYPE ITEMID [setDamage;setDescription;setProtection;setCraftable] [...]
+	*  -> [SetCraftable] <ItemID> <qte> | <ITEMID <qte>
+	*  RemObject = <TYPE> [item Name]
+	*/
 	client.itemsManagement = class {
 		constructor(){
 
 			/*
 			 *Ajout d'un type ou d'un item dans l'objet
+			 * @param typeName = String
+			 * @param reject = String
 			 */
 			this.addingObject = (typeName, itemName = undefined) => {
 				return new Promise((resolve, reject) => {	
@@ -93,6 +101,10 @@ module.exports = client => {
 					}
 				});
 			}
+			/*
+			 * Si un jour on doit changer la structure des inventaires :)
+			 * (à coder)
+			 */
 			this.updatingObject = () => {
 				return new Promise((resolve, reject) => {
 					for(const [classKey,classValue] of items){
@@ -100,12 +112,9 @@ module.exports = client => {
 					}
 				});
 			};
-			this.modifingEmote = (args) => {
-				return new Promise((resolve, reject) => {
-			
-				});
-			}
-
+			/*
+			 * @param args = List
+			 */
 			this.modifingObject = (args) => {
 				return new Promise((resolve, reject)  => {
 					client.itemListInType(args[0].toUpperCase()).then((value) => {
@@ -184,6 +193,11 @@ module.exports = client => {
 					}
 				});
 			}
+			/*
+			 *	@param idPlayer = String
+			 *	@parem itemID = String
+			 *	@pram quantity = int
+			 */
 			this.giveToPlayerItem = (idPlayer, itemID, quantity) => {
 				return new Promise((resolve, reject) => {
 					client.con.query(`SELECT * FROM inventory WHERE idplayer ='${idPlayer}' AND itemid ='${itemID}'`, (err, rows) => {
@@ -219,7 +233,10 @@ module.exports = client => {
 			}	
 		}
 	}
-
+	/*
+	 * @param itemID = String
+	 * Return item with help of his item-id
+	 */
 	client.itemInformation = (itemID) => {
 		for(const [key, value] of items){
 			for(const [itemKey, itemValue] of value){
@@ -227,7 +244,10 @@ module.exports = client => {
 			}
 		}
 	}
-	
+	/*
+	 * @param word = String
+	 * Search keyword on items to return his id.
+	 */
 	client.researchItem= (word) => {	
 		var queryFound = []
 		for(const [key, value] of items){
@@ -240,17 +260,21 @@ module.exports = client => {
 		}
 		return queryFound;
 	};
-
+	/*
+	 * Return all boject of a type :)
+	 */
 	client.returnType = () => {
 		var types = [];
 		for (const key of items.keys())
 				types.push(key);
 		return types;
 	};
+	client.iManage = new client.itemsManagement();
 
-	client.createLoot = (itemID, probability, lootMin, lootMax) => {
-		return {item: itemID, prob:probability, qtmin: lootMin, qtmax: lootMax};
-	};
+	/*
+	 * @param idItem = String 
+	 * @param itemName = String
+	 */
 	client.createItem = (idItem, itemName) => {
 		return {id: idItem, name: `${itemName}`, details: {DAMAGE: 0, PROTECTION: 0, CRAFT: false }, craftable: {}, description: "Description basique"}
 	}

@@ -1,4 +1,3 @@
-
 module.exports = client => {
 		/*
 		 *Gérer les loot
@@ -51,6 +50,7 @@ module.exports = client => {
 					});	
 				});
 			}
+			//On supprime les loots du monstre intitulé
 			this.removingLoot = (args) => {
 				return new Promise((resolve, reject) => {
 					var nameMonster; var argsSeparate = args.split('|'); 
@@ -72,4 +72,15 @@ module.exports = client => {
 			}
 		}
 	}
+	client.lootManager = client.lootManagement();	
+	/*
+	 * @param ItemID = String
+	 * @param probability = int
+	 * @lootMin = int
+	 * @lootMax = int
+	 * Créer un système de loot
+	 */
+	client.createLoot = (itemID, probability, lootMin, lootMax) => {
+		return {item: itemID, prob:probability, qtmin: lootMin, qtmax: lootMax};
+	};
 }
