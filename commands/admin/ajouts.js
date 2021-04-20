@@ -6,13 +6,14 @@ exports.run = async (client, message, args) => {
 	const titleEmbed = "『:gear:』Gestion du Roleplay";
 	const myEmbed = await client.sendEmbed(
 		titleEmbed,
-		"\t:books: - Ajouter un type/item. \n:heavy_dollar_sign: : - Ajouter un marché dans un salon\n? Rajouter des looots\n ",
+		"\t:books: - Ajouter un type/item. \n:heavy_dollar_sign: : - Ajouter un marché dans un salon\n" +
+		":bow_and_arrow: Ajouter des looots\n:alien:Ajouter un channel pour la génération des monstres",
 		"RED", 
 	);
 	
 	message.channel.send(myEmbed);
 	//Les réactions
-	message.react("❌"); message.react("📚");  message.react("💲"); message.react("🏹");
+	message.react("❌"); message.react("📚");  message.react("💲"); message.react("🏹"); message.react("👽");
 	
 
 	client.choiceGUI(message, [
@@ -29,9 +30,9 @@ exports.run = async (client, message, args) => {
 		"\nExemple: [Crée les loots d'un monstre] `Nom du monstre`",
 		"ORANGE","", "addingLoot"],
 
-		[titleEmbed,"Ajouts les rôles pour les lieux" +
-		"\nIl rajoute automatiquement les rôles`",
-		"ORANGE","", "addingRank"]
+		[titleEmbed,"Génération des monstres" +
+		"\nIl permet d'ajouter ce point de spawn au monstre`",
+		"ORANGE","", "addingMonsterSP"]
 
 	]);
 
@@ -39,7 +40,7 @@ exports.run = async (client, message, args) => {
 
 exports.help = {
     name: "ajouts",
-    description: "Cette commande va permettre de gérer les items",
+    description: "Cette commande va permettre de gérer le roleplay",
     usage: "=ajouts",
     example: "=ajouts"
 }

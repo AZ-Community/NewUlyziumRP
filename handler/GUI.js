@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const Canvas = require("canvas");
 
 module.exports = client => {
 	/*@param titleEmbed, message, color, urlImage -> String
@@ -14,10 +15,11 @@ module.exports = client => {
 		return embedGUI;
 	}
 	
+
+
 	/* @param message - MessageDiscord | value - List
 	 * reactChain for Discord*/
-
-	client.choiceGUI = (message, value = [], listChoice = ['📚', '💲', '🏹'] ) => {
+	client.choiceGUI = (message, value = [], listChoice = ['📚', '💲', '🏹', '👽'] ) => {
 		message.awaitReactions(client.filter, { max: 1, time: 60000, errors: ['time'] }).then( async(collected) => {
 			const reaction = collected.first();
 			for(var index = 0; index < listChoice.length; index++){
@@ -33,7 +35,20 @@ module.exports = client => {
 		}).catch(error => { 
 			return message.channel.send(client.sendEmbed("Requête annulé", `${error}`, "RED"));
 		});
-	}
+	};
+
+	/*@param titleEmbed, message, color, urlImage -> String
+	 *Return new Embed*/
+	client.classicalEmbed = (titleEmbed, message, color, urlImage) => {
+			const embedGUI = new Discord.MessageEmbed({
+			color: color, 
+			title: titleEmbed, 
+			description: message, 
+			footer: { text:  "[ 💛 ] ΛZUЯΞ | Community ©" }
+		});
+		if(urlImage) embedGUI.setImage(urlImage);
+		return embedGUI;
+	};
 	
 	client.awaitAnswer = (message, author, param) => {
 		var filter = m => m.author.id == message.author.id;
@@ -57,13 +72,13 @@ module.exports = client => {
 						 *Gestion du marché
 						 */
 					case "addingMarket":
-						message.channel.send(await client.markManage.createMarket(collected.last().content));
+						message.channel.send(await client.createMarket(collected.last().content));
 						break;
 					case "modifingMarket":
 						message.channel.send(await client.markManage.modifyMarket(collected.last().content.split(' ')));
 						break;
 					case "removingMarket":
-						message.channel.send(await client.markManage.removeMarket(collected.last().content.split(' ')[0]));
+						message.channel.send(await client.removeMarket(collected.last().content.split(' ')[0]));
 						break;
 						/*
 						 *Gestion du Loot
@@ -76,6 +91,15 @@ module.exports = client => {
 						break;
 					case "removingLoot":
 						message.channel.send(await client.lootManager.removingLoot(collected.last().content));
+						break;
+						/*
+						 *Gestion des Monstres
+						 */
+					case "addingMonsterSP":
+						message.channel.send(await client.addMonsterSpawnPoint(collected.last().content.split(' ')[0]));
+						break;
+					case "removingMonsterSP":
+						message.channel.send(await client.addMonsterSpawnPoint(collected.last().content.split(' ')[0]));
 						break;
 				}
 		}).catch( (error) => {return message.channel.send(client.sendEmbed("Requête annulé", `Raison: [${error}]`, "RED"))});

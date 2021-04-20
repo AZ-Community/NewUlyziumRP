@@ -14,6 +14,7 @@ config({path:__dirname+'/.env'});
 /**
  * -> Handlers Initialisation
  */
+
 require('./handler/Dialog.js')(client);
 require('./handler/Database.js')(client);
 require('./handler/Module.js')(client);
@@ -23,8 +24,8 @@ require('./handler/Inventory.js')(client);
 require('./handler/GUI.js')(client);
 require('./handler/Money.js')(client);
 require('./handler/Market.js')(client);
-require('./handler/Loot.js')(client);
-require('./handler/Font.js')(client);
+require('./handler/Channel.js')(client);
+
 /**
  * Events Initialisation
  */

@@ -35,44 +35,7 @@ module.exports = client => {
 	client.marketManagement = class {
 		constructor(){
 			this.basicDescription = "Aucun objet est à vendre... Les marchands dorment ! :zzz:";
-			/*
-			 * @param idChannel = String
-			 * Register channel like a Markets
-			 */
-			this.createMarket = (idChannel) => {
-				return new Promise((resolve, reject) => {
-					client.con.query(`SELECT * FROM marketChannel WHERE idChannel = '${idChannel}';`, (err, rows) => {
-						if(err) resolve();
-						if(rows.length == 0){
-							const channel = client.channels.cache.find(channel => channel.id === idChannel);
-							if(channel == undefined) resolve(client.sendEmbed(":x: __Erreur__","Channel innexistant / Mauvais id !", "RED"));
-							channel.send(client.sendEmbed('Test Marché', this.basicDescription, 'GREEN'));
-							client.con.query(`INSERT INTO marketChannel(idChannel, itemsMarket) VALUES('${idChannel}', '{}')`);
-							resolve(client.sendEmbed(":white_check_mark: Channel ajouté !", "", "GREEN"));	
-						}else if (rows.length == 1){
-							resolve(client.sendEmbed(":warning: Channel déjà présent.", "", "RED"));
-						}
-					});
-				});
-			}
-			/*
-			 * @param idChannel = String
-			 * Remove Markets with items...
-			 */
-			this.removeMarket = (idChannel) => {
-				return new Promise((resolve, reject) => {
-					client.con.query(`SELECT * FROM marketChannel WHERE idChannel = '${idChannel}';`, (err, rows) => {
-						if(err) resolve();
-						console.log(rows);
-						if(rows.length == 1){
-							client.con.query(`DELETE FROM marketChannel WHERE idChannel ='${rows[0].idChannel}'`);
-							resolve(client.sendEmbed(":white_check_mark: Channel supprimé !", "", "GREEN"));	
-						}else if (rows.length == 0){
-							resolve(client.sendEmbed(":warning: Channel innexistant.", "", "RED"));
-						}
-					});
-				});
-			}
+
 			/*
 			 * @param args = List
 			 * <ID Channel> <addbuy|modifbuy|rembuy> <item id>
@@ -88,12 +51,12 @@ module.exports = client => {
 							const channel = client.channels.cache.find(channel => channel.id === args[0]);
 							if(!channel) resolve(client.sendEmbed(":x: __Erreur__","Channel innexistant / Mauvais id !", "RED"));
 							const itemMarket = JSON.parse(rows[0].itemsMarket);
+							const newJson = new Map();
 							switch(args[1].toLowerCase()){		
 								case "addbuy":
 									const typeAndID = args[3].split(";");
 									if(client.itemInformation(typeAndID[1])){
 										const newItem = client.createItemToBuy(typeAndID[1], 1, args[2]);
-										const newJson = new Map();
 										console.log(Object.keys(itemMarket).length);
 										if(Object.keys(itemMarket).length > 0){
 											var size = 1;
@@ -105,7 +68,6 @@ module.exports = client => {
 										}else{
 											newJson.set(1,newItem);
 										}
-										console.log(newJson);
 										client.con.query(`UPDATE marketChannel SET itemsMarket='[ ${client.changeMapToJson(newJson)} ]' WHERE idChannel ='${args[0]}'`, 
 											(err) => {
 											if (err) resolve(client.sendEmbed(":x: __Erreur requête UPDATE dans le Market.js", err, "RED"));
@@ -116,7 +78,6 @@ module.exports = client => {
 									}
 									break;
 								case "modifbuy":
-									let newJson = new Map();
 									for(var [key, value] of Object.entries(itemMarket)){
 										if(args[2] == key){
 											if(args[3]){
@@ -140,7 +101,6 @@ module.exports = client => {
 										}
 										newJson.set(key, value);
 									}
-									console.log(client.changeMapToJson(newJson)); 
 									client.con.query(`UPDATE marketChannel SET itemsMarket='[ ${client.changeMapToJson(newJson)} ]' WHERE idChannel ='${args[0]}'`,  (err) => {
 										console.log(err);
 										if (err) resolve(client.sendEmbed(":x: __Erreur requête UPDATE dans le Market.js", err, "RED"));
@@ -148,7 +108,15 @@ module.exports = client => {
 									});
 									break;
 								case "removebuy":
-
+									for(var [key, value] of Object.entries(itemMarket)){
+										if(args[2] != key)
+											newJson.set(key, value);
+									}
+									client.con.query(`UPDATE marketChannel SET itemsMarket='[ ${client.changeMapToJson(newJson)} ]' WHERE idChannel ='${args[0]}'`,  (err) => {
+										console.log(err);
+										if (err) resolve(client.sendEmbed(":x: __Erreur requête UPDATE dans le Market.js", err, "RED"));
+										client.loadMarket();
+									});
 									break;			
 							}
 						}else if (rows.length == 0){
