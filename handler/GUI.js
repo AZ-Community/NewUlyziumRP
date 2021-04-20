@@ -14,8 +14,20 @@ module.exports = client => {
 		if(urlImage) embedGUI.setImage(urlImage);
 		return embedGUI;
 	}
-	
-
+	client.canvas = Canvas;
+	client.canvas.registerFont('./fonts/PixAntiqua.ttf', { family: 'PixAntiqua' })
+	client.applyText = (canvas, text) => {
+		const ctx = canvas.getContext('2d');
+		let fontSize = 70;
+		do {
+			ctx.font = `${fontSize -= 10}px "PixAntiqua"`;
+		} while ( ctx.measureText(text).width > 150 );
+		return ctx.font;
+	};
+	client.expBar = () => {
+		const canvas = client.canvas.createCanvas(200, 90);
+		const ctx = canvas.getContext('2d');
+	}
 
 	/* @param message - MessageDiscord | value - List
 	 * reactChain for Discord*/
