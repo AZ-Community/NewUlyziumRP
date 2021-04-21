@@ -25,6 +25,7 @@ require('./handler/GUI.js')(client);
 require('./handler/Money.js')(client);
 require('./handler/Market.js')(client);
 require('./handler/Channel.js')(client);
+require('./handler/Monster.js')(client);
 
 /**
  * Events Initialisation

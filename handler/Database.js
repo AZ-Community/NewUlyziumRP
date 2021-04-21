@@ -25,7 +25,7 @@ module.exports = client => {
 				pieces INT DEFAULT 50, ziums INT DEFAULT 0);
 				CREATE TABLE IF NOT EXISTS inventory( idplayer VARCHAR(25), itemid VARCHAR(25), quantity INT DEFAULT 1);
 				CREATE TABLE IF NOT EXISTS marketChannel (idChannel VARCHAR(25)  UNIQUE, itemsMarket TEXT);
-				CREATE TABLE IF NOT EXISTS monsterLoot(nameMonster VARCHAR(30) UNIQUE, lootItems TEXT);
+				CREATE TABLE IF NOT EXISTS monsters(name VARCHAR(100) UNIQUE, pntAtk INT DEFAULT 0, pntLife INT DEFAULT 0, loots TEXT, catchSentence TEXT, channelSpawn TEXT DEFAULT NULL); 
 				CREATE TABLE IF NOT EXISTS monsterChannel(idChannel VARCHAR(25) UNIQUE, monsters TEXT);
         CREATE TABLE IF NOT EXISTS channelXPBan( idServer VARCHAR(31), idChannel VARCHAR(30), PRIMARY KEY(idServer, idChannel) );
         CREATE TABLE IF NOT EXISTS progress(idplayer VARCHAR(25), pgrplayers INT DEFAULT 0,dialog INT DEFAULT 0, pnj VARCHAR(10));

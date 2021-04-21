@@ -65,55 +65,48 @@ module.exports = client => {
 	client.awaitAnswer = (message, author, param) => {
 		var filter = m => m.author.id == message.author.id;
 		message.channel.awaitMessages(filter, {max: 1, time: 20000,errors: ['time']}).then(async (collected) => {
-				switch(param){
-							/*
-							 *Gestion des items;
-							 */
-					case "addingItem":
-						if(collected.last().content.split(' ').length == 1) message.channel.send(await client.iManage.addingObject(collected.last().content.split(' ')[0].toUpperCase()));
-						else message.channel.send(await client.iManage.addingObject(collected.last().content.split(' ')[0].toUpperCase(), collected.last().content.split(' ')));
-						break;
-					case "modifingItem":	
-						message.channel.send(await client.iManage.modifingObject(collected.last().content.split(' ')));
-						break;
-					case "removingItem":
-						if(collected.last().content.split(' ').length == 1) message.channel.send(await client.iManage.removingObject(collected.last().content.split(' ')[0].toUpperCase()));
-						else message.channel.send(await client.iManage.removingObject(collected.last().content.split(' ')[0].toUpperCase(), collected.last().content.split(' ')[1]));
-						break;
-						/*
-						 *Gestion du marché
-						 */
-					case "addingMarket":
-						message.channel.send(await client.createMarket(collected.last().content));
-						break;
-					case "modifingMarket":
-						message.channel.send(await client.markManage.modifyMarket(collected.last().content.split(' ')));
-						break;
-					case "removingMarket":
-						message.channel.send(await client.removeMarket(collected.last().content.split(' ')[0]));
-						break;
-						/*
-						 *Gestion du Loot
-						 */
-					case "addingLoot":
-						message.channel.send(await client.lootManager.addingLoot(collected.last().content));
-						break;
-					case "modifingLoot":
-						message.channel.send(await client.lootManager.modifingLoot(collected.last().content));
-						break;
-					case "removingLoot":
-						message.channel.send(await client.lootManager.removingLoot(collected.last().content));
-						break;
-						/*
-						 *Gestion des Monstres
-						 */
-					case "addingMonsterSP":
-						message.channel.send(await client.addMonsterSpawnPoint(collected.last().content.split(' ')[0]));
-						break;
-					case "removingMonsterSP":
-						message.channel.send(await client.addMonsterSpawnPoint(collected.last().content.split(' ')[0]));
-						break;
-				}
-		}).catch( (error) => {return message.channel.send(client.sendEmbed("Requête annulé", `Raison: [${error}]`, "RED"))});
+		switch(param){
+			/*
+			 *Gestion des items;
+			 */
+			case "addingItem":
+				if(collected.last().content.split(' ').length == 1) message.channel.send(await client.iManage.addingObject(collected.last().content.split(' ')[0].toUpperCase()));
+				else message.channel.send(await client.iManage.addingObject(collected.last().content.split(' ')[0].toUpperCase(), collected.last().content.split(' ')));
+				break;
+			case "modifingItem":	
+				message.channel.send(await client.iManage.modifingObject(collected.last().content.split(' ')));
+				break;
+			case "removingItem":
+				if(collected.last().content.split(' ').length == 1) message.channel.send(await client.iManage.removingObject(collected.last().content.split(' ')[0].toUpperCase()));
+				else message.channel.send(await client.iManage.removingObject(collected.last().content.split(' ')[0].toUpperCase(), collected.last().content.split(' ')[1]));
+				break;
+			/*
+			 *Gestion du marché
+			 */
+			case "addingMarket":
+				message.channel.send(await client.createMarket(collected.last().content));
+				break;
+			case "modifingMarket":
+				message.channel.send(await client.markManage.modifyMarket(collected.last().content.split(' ')));
+				break;
+			case "removingMarket":
+				message.channel.send(await client.removeMarket(collected.last().content.split(' ')[0]));
+				break;
+			/*
+			 *Gestion des Monstres
+			 */
+			case "addingMonster":
+				message.channel.send(await client.monsterManager.addMonster(collected.last().content));
+				break;
+			case "addingMonsterSP":
+				message.channel.send(await client.addMonsterSpawnPoint(collected.last().content.split(' ')[0]));
+				break;
+			case "removingMonsterSP":
+				message.channel.send(await client.addMonsterSpawnPoint(collected.last().content.split(' ')[0]));
+				break;
+		}
+		}).catch( (error) => {
+			console.log(error);
+			return message.channel.send(client.sendEmbed("Requête annulé", `Raison: [${error}]`, "RED"))});
 	}
 }
