@@ -7,8 +7,8 @@ exports.run = async (client, message, args) => {
     const titleEmbed = "『:gear:』Gestion du Roleplay";
 	const myEmbed = await client.sendEmbed(
 		titleEmbed,
-		"\t:books: - Retirer un type/item. \n:heavy_dollar_sign: - Retirer un marché d'un salon\n:bow_and_arrow: - Retirer un loot/monstre",
-		"RED", 
+		"\t:books: - Retirer un type/item. \n:heavy_dollar_sign: - Retirer un marché/spawn point (mosntre)  dans un salon\n" +
+		":bow_and_arrow: - Retirer des monstres",		"RED"
 	);
 	
 	message.channel.send(myEmbed);
@@ -23,8 +23,11 @@ exports.run = async (client, message, args) => {
 		"\n Exemple [pour supprimer un type]: `TYPES`" +
 		"\n :warning: **__Vérifiez bien votre message__**!", "ORANGE", "", "removingItem"],
 
-		[titleEmbed,"Donnez l'id de l'item à vendre ou du marché à supprimé " +
-		"\n :warning: **__Vérifiez bien votre message__**!", "ORANGE", "", "removingMarket"],	
+		[titleEmbed,"Donnez l'id ou du marché/spawn du mosntre à supprimé/" +
+		"\nPour un marché : `<id du salon> toMarket`\n" +
+		"\nPour un spawn point: `<id du salon> toMonster`\n" +
+		"\n`<Id du salon>`,obtenable à l'aide du mode développeur" +
+		"\n :warning: **__Vérifiez bien votre message__**!", "ORANGE", "", "removingMarkChannel"],	
 			
 		[titleEmbed,"Donnez le nom du monstre à supprimer ou l'id du loot" +
 		"\n :warning: **__Vérifiez bien votre message__**!", "ORANGE", "", "removingLoot"]

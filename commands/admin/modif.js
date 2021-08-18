@@ -31,8 +31,8 @@ exports.run = async (client, message, args) => {
 		"\n :warning: **__Vérifiez bien la syntaxe !__**", "ORANGE", "", "modifingMarket"],
 
 		[titleEmbed,"AIDE" +
-		"\n `<Nom du monstre>|<Loot 1;Probabilité,Prob2,Prob3> <Loot2;etc...>`"+
-		"\n :warning: **__Vérifiez bien la syntaxe !__**", "ORANGE", "", "modifingLoot"]
+		"\n `<Nom du monstre>|<setChannel&setStat&setLoot> <args>`"+
+		"\n :warning: **__Vérifiez bien la syntaxe !__**", "ORANGE", "", "modifingMonster"]
 
 	]);
 

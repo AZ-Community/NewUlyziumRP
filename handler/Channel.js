@@ -9,7 +9,7 @@ module.exports = client => {
 		return new Promise((resolve, reject) 	=> {
 			client.con.query(`SELECT * FROM monsterChannel WHERE idChannel =${idChannel}`, (err, rows) => {
 				if (rows.length == 1 )  resolve(client.sendEmbed(":warning: Channel déjà présent.", "", "RED"));
-				const channel = client.channels.cache.find(channel => channel.id === idChannel);
+				const channel = client.getChannel(idChannel); 
 				if(channel == undefined) resolve(client.sendEmbed(":x: __Erreur__","Channel innexistant / Mauvais id !", "RED"));
 				else{
 					client.con.query(`INSERT INTO monsterChannel(idChannel, monsters) VALUES ('${idChannel}', '{}');`, (err) => {		
@@ -35,8 +35,8 @@ module.exports = client => {
 		return new Promise((resolve, reject) => {
 			client.con.query(`SELECT * FROM marketChannel WHERE idChannel = '${idChannel}';`, (err, rows) => {
 			if(err) resolve();
-			if(rows.length == 1){
-				client.con.query(`DELETE FROM marketChannel WHERE idChannel ='${rows[0].idChannel}'`);
+			if(rows.length){
+				client.con.query(`DELETE FROM marketChannel WHERE idChannel ='${rows[0].idChannel}'; `);
 				resolve(client.sendEmbed(":white_check_mark: Channel supprimé !", "", "GREEN"));	
 			}else if (rows.length == 0){
 				resolve(client.sendEmbed(":warning: Channel innexistant.", "", "RED"));
@@ -53,7 +53,7 @@ module.exports = client => {
 			client.con.query(`SELECT * FROM marketChannel WHERE idChannel = '${idChannel}';`, async(err, rows) => {
 			if(err) resolve();
 			if(rows.length == 0){	
-				const channel = client.channels.cache.find(channel => channel.id === idChannel);
+				const channel = client.getChannel(idChannel);
 				if(channel == undefined) resolve(client.sendEmbed(":x: __Erreur__","Channel innexistant / Mauvais id !", "RED"));
 				else{		
 					channel.send(client.sendEmbed('Test Marché', client.markManage.basicDescription, 'GREEN'));
@@ -65,5 +65,8 @@ module.exports = client => {
 				}
 			});
 		});
+	}
+	client.getChannel = (idChannel) => {
+		return client.channels.cache.find(channel => channel.id === idChannel)
 	}
 }

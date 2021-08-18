@@ -16,6 +16,11 @@ module.exports = client => {
 	}
 	client.canvas = Canvas;
 	client.canvas.registerFont('./fonts/PixAntiqua.ttf', { family: 'PixAntiqua' })
+	/*
+	 * Check if text is not big to size proportion
+	 * @param canvas = Canvas (Context 2D)
+	 * @paam text = ctx.texdt
+	 */
 	client.applyText = (canvas, text) => {
 		const ctx = canvas.getContext('2d');
 		let fontSize = 70;
@@ -65,45 +70,49 @@ module.exports = client => {
 	client.awaitAnswer = (message, author, param) => {
 		var filter = m => m.author.id == message.author.id;
 		message.channel.awaitMessages(filter, {max: 1, time: 20000,errors: ['time']}).then(async (collected) => {
+		const args = collected.last().content;
 		switch(param){
 			/*
 			 *Gestion des items;
 			 */
 			case "addingItem":
-				if(collected.last().content.split(' ').length == 1) message.channel.send(await client.iManage.addingObject(collected.last().content.split(' ')[0].toUpperCase()));
-				else message.channel.send(await client.iManage.addingObject(collected.last().content.split(' ')[0].toUpperCase(), collected.last().content.split(' ')));
+				if(collected.last().content.split(' ').length == 1) message.channel.send(await client.iManage.addingObject(args.split(' ')[0].toUpperCase()));
+				else message.channel.send(await client.iManage.addingObject(args.split(' ')[0].toUpperCase(), args.split(' ')));
 				break;
 			case "modifingItem":	
-				message.channel.send(await client.iManage.modifingObject(collected.last().content.split(' ')));
+				message.channel.send(await client.iManage.modifingObject(param.split(' ')));
 				break;
 			case "removingItem":
-				if(collected.last().content.split(' ').length == 1) message.channel.send(await client.iManage.removingObject(collected.last().content.split(' ')[0].toUpperCase()));
-				else message.channel.send(await client.iManage.removingObject(collected.last().content.split(' ')[0].toUpperCase(), collected.last().content.split(' ')[1]));
+				if(args.split(' ').length == 1) message.channel.send(await client.iManage.removingObject(args.split(' ')[0].toUpperCase()));
+				else message.channel.send(await client.iManage.removingObject(args.split(' ')[0].toUpperCase(), args.split(' ')[1]));
 				break;
 			/*
-			 *Gestion du marché
+			 *Gestion des Channels
 			 */
-			case "addingMarket":
-				message.channel.send(await client.createMarket(collected.last().content));
+			case "addingMarkChannel":
+				console.log(param);
+				if(args.split(' ')[1].toLowerCase() == "tomarket") message.channel.send(await client.createMarket(args.split(' ')[0]));
+				else if(args.split(' ')[1].toLowerCase() == "tomonster") message.channel.send(await client.addMonsterSpawnPoint(args.split(' ')[0]));
 				break;
+			case "removingMarkChannel":
+				message.channel.send(await client.removeMarket(args.split(' ')[0]));
+				break;
+			/*
+			 * Gestion du marché
+			 */
 			case "modifingMarket":
-				message.channel.send(await client.markManage.modifyMarket(collected.last().content.split(' ')));
-				break;
-			case "removingMarket":
-				message.channel.send(await client.removeMarket(collected.last().content.split(' ')[0]));
+				message.channel.send(await client.markManage.modifyMarket(args.split(' ')));
 				break;
 			/*
 			 *Gestion des Monstres
 			 */
 			case "addingMonster":
-				message.channel.send(await client.monsterManager.addMonster(collected.last().content));
+				message.channel.send(await client.monsterManager.addMonster(args));
 				break;
-			case "addingMonsterSP":
-				message.channel.send(await client.addMonsterSpawnPoint(collected.last().content.split(' ')[0]));
+			case "modifingMonster":
+				message.channel.send(await client.monsterManager.modifMonster(args.split('|')));
 				break;
-			case "removingMonsterSP":
-				message.channel.send(await client.addMonsterSpawnPoint(collected.last().content.split(' ')[0]));
-				break;
+
 		}
 		}).catch( (error) => {
 			console.log(error);

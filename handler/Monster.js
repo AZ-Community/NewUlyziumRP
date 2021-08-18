@@ -18,7 +18,7 @@ module.exports = client => {
 					client.con.query(`SELECT * FROM monsters WHERE name = '${monsterInfo[0]}' `, (err, rows) => {
 						if (err) reject(err);
 						if (rows.length == 0){
-							client.con.query(`INSERT INTO monsters(name, pntAtk, pntLife, loots , catchSentence) VALUES ('${monsterInfo[0]}', '${monsterInfo[1]}', '${monsterInfo[2]}', '{}', '${monsterInfo[3]}')`, (err) => {
+							client.con.query(`INSERT INTO monsters(name, pntAtk, pntLife, loots , catchSentence, channelSpawn) VALUES ('${monsterInfo[0]}', '${monsterInfo[1]}', '${monsterInfo[2]}', '{}', '${monsterInfo[3]}')`, (err) => {
 								if(err) reject (err);
 								resolve(client.sendEmbed(
 									`:white_check_mark: Monstre\`${monsterInfo[0]}\` Crée`,
@@ -39,7 +39,35 @@ module.exports = client => {
 			 * Modif map constructor of a Monster.
 			 */
 			this.modifMonster = (args) => {
-			
+				const nameMonster = args[0];
+				args = args[1].split(' ');
+				client.con.query(`SELECT * FROM monsters WHERE name='${nameMonster}'`, (err, rows) => {
+					if(rows.length == 1){
+						switch(args[0].toLowerCase()){
+							case "setchannel":
+								var spawningChannel = (rows[0].channelSpawn) ? rows[0].channelSpawn.splice(';') : ""; 
+								const channel = client.getChannel(args[1]);
+								if(channel) {
+									spawningChannel = channel + ";";
+									client.con.query(`UPDATE monsters SET channelSpawn='${spawningChannel}' WHERE name ='${nameMonster}';`, (err) => {
+										if(err) console.log(err);
+										resolve(client.sendEmbed(
+											":white_check_mark: Spawn point ajouté !",
+											`:information_source: pour le monstre \`${nameMonster}\` `,
+											"GREEN"
+										));
+									});
+								}
+								break;
+							case "remChannel":
+								break;
+							}
+					}else resolve(client.sendEmbed(
+							":x: Monstre inconnu",
+							"inconnu du batailllon d'exploration...",
+							"RED"
+					));
+				});
 			}
 			/*
 			 * @param args = List<String>
@@ -50,7 +78,7 @@ module.exports = client => {
 			}
 			this.modifingLoot = (args) => {
 				return new Promise((resolve, reject) => {
-					const  argsSeparate = args.split('|'); 
+					const argsSeparate = args.split('|'); 
 					const allLoots = new Map(); 
 					client.con.query(`SELECT * FROM monsters WHERE nameMonster='${argsSeparate[args.length-1]}'`, async(err, rows) => {
 						if (err && !rows) resolve(client.sendEmbed(`:x: Erreur `, `venant de la requête \`SELECT\` pour les loots \n ${err}!`, "RED"));
@@ -98,9 +126,75 @@ module.exports = client => {
 					}
 				});
 			}
+			this.getMonsterWithName = (name) => {
+				return new Promise((resolve, reject) => {
+					client.con.query(`SELECT * FROM monsters WHERE name='${name}'`, (err, rows) => {
+						if (err) reject(err);
+						if (rows.length == 1) resolve({name: rows[0].name, life: rows[0].pntLife, atk: rows[0].pntAtk});
+					});
+				});
+			}
+			this.getMobs = (idChannel) => {
+				return new Promise((resolve, reject)  => {
+					client.con.query(`SELECT * FROM monsterChannel WHERE idChannel='${idChannel}'`, (err, rows) => {
+						const json = JSON.parse(rows[0].monsters);
+						const monsters = new Map();
+						var i=0;
+						json.forEach(item => {
+							monsters.set(i, item);
+							i++;
+						});
+						resolve(monsters);
+					});
+				});
+			}
 		}
-	}
+	};
 	
+	client.generateMob = () => {
+		return new Promise((resolve, reject) => {		
+			client.con.query(`SELECT * FROM monsterChannel`, (err, rows) => {
+				if (err) reject(err);
+				if(rows.length > 0){
+					const channel = client.getChannel(rows[0].idChannel);
+					const monsters = JSON.parse(rows[0].monsters);
+					const monsterCanSpawning = new Array(); 
+					if(channel) {
+						if(Object.keys(monsters).length >= 0){
+							client.con.query(`SELECT * FROM monsters`, (err, rows) => {
+								for(var i = 0; i < rows.length; i++){
+									if(rows[i].channelSpawn) {
+										var channels = rows[i].channelSpawn.split(';');
+										for(var j=0; j < channels.length; j++){
+											if(channels[j] == channel.id) monsterCanSpawning.push(rows[i]);
+										}
+									}
+								}
+								var monsterSpawn = Math.floor(Math.random() * (monsterCanSpawning.length));
+								var newJSON = new Map();
+								var i = 0;
+								monsters.forEach( item => {
+									if(monsterCanSpawning[0].name == item.name){
+										newJSON.set(i, {name: item.name});
+										i++;
+									}
+								});
+								newJSON.set(i, {name: monsterCanSpawning[monsterSpawn].name});
+								client.con.query(`UPDATE monsterChannel SET monsters='[ ${client.changeMapToJson(newJSON)} ]' WHERE idChannel='${channel.id}'`);
+								channel.send(client.sendEmbed(
+									"ZONE - | T E S T | -",
+									"Un monstre vient de spawner dans cette zone...",
+									"ORANGE"
+								));	
+							});
+						}else{
+
+						}
+					}
+				}
+			});
+		});
+	}	
 	client.monsterManager = new client.monsterManagement();
 	/*
 	 * @param ItemID = String

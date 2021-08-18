@@ -6,14 +6,14 @@ exports.run = async (client, message, args) => {
 	const titleEmbed = "『:gear:』Gestion du Roleplay";
 	const myEmbed = await client.sendEmbed(
 		titleEmbed,
-		"\t:books: - Ajouter un type/item. \n:heavy_dollar_sign: - Ajouter un marché dans un salon\n" +
-		":bow_and_arrow: - Ajouter des monstres\n:alien: - Ajouter un channel pour la génération des monstres",
-		"RED", 
+		"\t:books: - Ajouter un type/item. \n:heavy_dollar_sign: - Ajouter un marché/spawn point (mosntre)  dans un salon\n" +
+		":bow_and_arrow: - Ajouter des monstres",
+		"RED"
 	);
 	
 	message.channel.send(myEmbed);
 	//Les réactions
-	message.react("❌"); message.react("📚");  message.react("💲"); message.react("🏹"); message.react("👽");
+	message.react("❌"); message.react("📚");  message.react("💲"); message.react("🏹"); 
 	
 
 	client.choiceGUI(message, [
@@ -23,17 +23,17 @@ exports.run = async (client, message, args) => {
 		"\n :warning: **__Vérifiez bien votre message__**!", "ORANGE", "", "addingItem"	],
 
 		[titleEmbed,"Ajouter un marché, dans le salon que vous voulez !"+
-		"\n `<Id du salon>`, obtenable à l'aide du mode développeur"
-		, "ORANGE", "", "addingMarket"],
+		"\nPour un marché : `<id du salon> toMarket`" +
+		"\nPour un spawn point: `<id du salon> toMonster`" +
+		"\n `<Id du salon>`, obtenable à l'aide du mode développeur" +
+		"\nLégende : <> = Important à mettre",
+		"ORANGE", "", "addingMarkChannel"],
 
 		[titleEmbed,"Ajouter un monstre!" +
 		"\nExemple: [Crée un nouveau monstre] <`Nom du monstre`>|<point d'Attaque>|<point de Vies>" + 
 		"\nLégende : <> = Important à mettre",
 		"ORANGE","", "addingMonster"],
 
-		[titleEmbed,"Génération des monstres" +
-		"\nIl permet d'ajouter ce point de spawn au monstre`",
-		"ORANGE","", "addingMonsterSP"]
 
 	]);
 }

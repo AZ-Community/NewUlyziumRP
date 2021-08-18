@@ -14,7 +14,7 @@ module.exports = client => {
 					const channel = client.channels.cache.find(channel => channel.id === idChannel);
 					var textEmbed = JSON.parse(rows[i].itemsMarket);
 					if(Object.keys(textEmbed).length <= 0){
-						channel.send(client.sendEmbed('Test Marché', `Aucun object à vendre zebi..`, 'WHITE'));
+						channel.send(client.sendEmbed('Marché', client.markManage.basicDescription, 'WHITE'));
 					}else{
 						var description = "";
 						for(const [key, value] of Object.entries(textEmbed)){
@@ -23,9 +23,10 @@ module.exports = client => {
 													` / Cuivre(s) ${price[2]} \n`;
 							embed.setDescription(description);
 						}
+						channel.bulkDelete(50, true);
 						channel.send(embed).then(message => { 
-							for (const [key, value] of Object.entries(textEmbed))
-								message.react(value.emote);	
+							for (const [key, value] of Object.entries(textEmbed));
+								//message.react(value.emote);	
 						});
 					}
 					resolve();
@@ -46,9 +47,11 @@ module.exports = client => {
 			this.modifyMarket = (args) => {
 				return new Promise((resolve, reject) => {
 					client.con.query(`SELECT * FROM marketChannel WHERE idChannel = '${args[0]}' ;`, (err, rows) => {
+						console.log(args[0]);
 						if(err) resolve();
+						console.log(rows);
 						if(rows.length == 1){
-							const channel = client.channels.cache.find(channel => channel.id === args[0]);
+							const channel = client.getChannel(args[0]);
 							if(!channel) resolve(client.sendEmbed(":x: __Erreur__","Channel innexistant / Mauvais id !", "RED"));
 							const itemMarket = JSON.parse(rows[0].itemsMarket);
 							const newJson = new Map();
@@ -62,7 +65,7 @@ module.exports = client => {
 											var size = 1;
 											for(const [key, item] of Object.entries(itemMarket)){
 												newJson.set(size, item);
-												size ++;
+												size++;
 											}
 											newJson.set(size,newItem);
 										}else{
@@ -119,7 +122,7 @@ module.exports = client => {
 									});
 									break;			
 							}
-						}else if (rows.length == 0){
+						}else if (!rows.length){
 							resolve(client.sendEmbed(":warning: Channel innexistant", "", "RED"));
 						}
 					});
@@ -134,7 +137,7 @@ module.exports = client => {
 	 * @param prix = int;
 	 * @param emoticon = String (utf-_ to utf-32);
 	 */
-	client.createItemToBuy = (idItem, quantity, prix, emoticon=":question:")  => {
+	client.createItemToBuy = (idItem, quantity, prix, emoticon="❓")  => {
 		return {id: idItem, qte: quantity, price: prix, emote: emoticon};
 	}
 }

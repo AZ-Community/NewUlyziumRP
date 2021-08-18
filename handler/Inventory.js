@@ -240,7 +240,7 @@ module.exports = client => {
 	client.itemInformation = (itemID) => {
 		for(const [key, value] of items){
 			for(const [itemKey, itemValue] of value){
-				if(Object(itemKey).localeCompare(itemID) == 0) return itemValue;
+				if(!Object(itemKey).localeCompare(itemID)) return itemValue;
 			}
 		}
 	}
@@ -248,7 +248,7 @@ module.exports = client => {
 	 * @param word = String
 	 * Search keyword on items to return his id.
 	 */
-	client.researchItem= (word) => {	
+	client.researchItem= (word) => {	 //Une dichotomie serait la bienvenue sous cette partie.
 		var queryFound = []
 		for(const [key, value] of items){
 			for(const [itemKey, itemValue] of value){
